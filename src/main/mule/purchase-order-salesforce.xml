@@ -1,0 +1,1250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:sdc="http://www.mulesoft.org/schema/mule/sdc"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/sdc http://www.mulesoft.org/schema/mule/sdc/current/mule-sdc.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="create-order-in-salesforce" doc:id="ce4d0d81-2a93-4448-b9eb-42d4f59265ec" maxConcurrency="1">
+		<set-variable value="#[now()]" doc:name="startTime" doc:id="592c9ea1-8220-4a24-9689-2c355c64f478" variableName="startTime" />
+		<logger level="INFO" doc:name="Start" doc:id="4aafa81a-5c45-4a54-a40e-b70751e0e0e0" message="INIT create-order-in-salesforce"/>
+		<!-- [STUDIO:"orderResponseIDP"]<logger level="DEBUG" doc:name="orderResponseIDP" doc:id="8c700f56-2bb9-43f2-bf8d-1f7fd2ec06fe" message="#[vars.orderResponseIDP&#93;" /> [STUDIO] -->
+		<ee:transform doc:name="productList" doc:id="d11893f0-f1cf-4ccc-bce5-9e6a63c07312" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="productList" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.orderResponseIDP.items 
+	filter ((item, index) -> !(lower(item.descripcion) contains "flete"))]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="fleteList" doc:id="a63aee93-6e74-428b-a4b5-80d3d48871a2">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="fleteList" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.orderResponseIDP.items 
+	filter ((item, index) -> lower(item.descripcion) contains "flete")]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="46b0a57c-82bb-434c-84a1-e7748d4614d5" >
+			<when expression='#[lower(vars.orderResponseIDP.nombreSolicitante) contains ("ebema")]'>
+				<logger level="DEBUG" doc:name="EBEMA" doc:id="5f7cdb6f-a0ae-4f4f-9dfd-a23b9a5cfcef" message="NOMBRE SOLICITANTE EBEMA - QUERY SOLICITANTE"/>
+				<ee:transform doc:name="solicitante" doc:id="1ae5af33-2dec-4fc5-a2a5-3cf7dbf6eb4e">
+					<ee:message>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="solicitante" ><![CDATA[%dw 2.0
+output application/json
+---
+"SELECT Id, Cod_Cliente__c FROM Account WHERE Name='" ++ (vars.orderResponseIDP.nombreSolicitante default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="9489a760-7ee3-469e-879b-3a63572b372f" message="#[vars.solicitante]" />
+				<salesforce:query doc:name="solicitante" doc:id="9dd6dc9e-14e2-4759-be0f-5ccb72da93b7" config-ref="Salesforce_Config" target="solicitante">
+					<salesforce:salesforce-query><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
+				</salesforce:query>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="e19da94a-9574-46dd-91c7-db2cb39991d5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]"/>
+			
+</when>
+			<when expression='#[(vars.orderResponseIDP.rutSolicitante == "0") and (lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam"))]' >
+				<logger level="INFO" doc:name="RUT 0 - PRODALAM" doc:id="a97dd3c0-7cf1-42c6-90e8-943e14672dac" message="RUT 0 - PRODALAM"/>
+				<ee:transform doc:name="solicitante" doc:id="bbce51e4-b71e-428f-a259-47948458d812" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="solicitante" ><![CDATA[%dw 2.0
+output application/json
+---
+"SELECT Id, Cod_Cliente__c FROM Account WHERE Name='" ++ (vars.orderResponseIDP.nombreSolicitante default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="0e66ea8e-1135-4f49-9acd-fd2dcffa7f22" message="#[vars.solicitante]" />
+				<salesforce:query doc:name="solicitante" doc:id="03f426e4-5fb1-48de-b8f3-ec2926b66ced" config-ref="Salesforce_Config" target="solicitante" >
+					<salesforce:salesforce-query ><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
+				</salesforce:query>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="8b9ac6af-1afa-4051-ab1c-b2420c8e1522" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
+			
+</when>
+			<when expression='#[vars.orderResponseIDP.rutSolicitante == "0"]' >
+				<logger level="DEBUG" doc:name="RUT 0" doc:id="ef32b9b4-25a6-4930-9617-0cbfd165687f" message="RUT SOLICITANTE 0" />
+			</when>
+			<otherwise >
+				<logger level="DEBUG" doc:name="DEFAULT" doc:id="46effc96-4fc5-4231-b909-c05219051657" message="DEFAULT"/>
+				<ee:transform doc:name="solicitante" doc:id="2ecc2e89-0531-410b-8a63-417aa56ba8f1">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="solicitante"><![CDATA[%dw 2.0
+output application/json
+---
+"SELECT Id, Cod_Cliente__c FROM Account WHERE Rut__c='" ++ (vars.orderResponseIDP.rutSolicitante default "") ++ "'"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="6d957fc0-3f40-44d4-92f1-bf5c501d41ac" message="#[vars.solicitante]" />
+				<salesforce:query doc:name="solicitante" doc:id="1eb1f46b-2921-4318-8700-2329c2890edb" config-ref="Salesforce_Config" target="solicitante">
+			<salesforce:salesforce-query><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
+		</salesforce:query>
+				<logger level="DEBUG" doc:name="solicitante" doc:id="f1d7e194-d7b4-4112-b22b-b0d33ff19998" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
+			
+</otherwise>
+		</choice>
+		<choice doc:name="Choice" doc:id="0866f134-25a0-42f2-8524-a6294d84d156" >
+			<when expression='#[((vars.orderResponseIDP.direccionDespachar != "0") and (!isEmpty(vars.orderResponseIDP.direccionDespachar))) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac"))]'>
+				<choice doc:name="Choice" doc:id="18a4237c-dfd7-47e2-89e4-0b60dc5c46a7">
+			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.direccionDespachar == "0") and (vars.orderResponseIDP.source == "Correo")]'>
+				<logger level="DEBUG" doc:name="SODIMAC 0" doc:id="9d72d89e-f5d7-45ef-acaa-f42b977cb496" message="NOMBRE SOLICITANTE SODIMAC - DIRECCION DESPACHAR 0" />
+				<ee:transform doc:name="destinatario" doc:id="a24832d1-e473-4579-bd64-db055ddd91da">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+output application/json
+var nombre = (trim(lower(vars.orderResponseIDP.nombreDestinatario)) default "") replace " " with ("%") replace "." with ("%") replace "-" with ("%") replace "," with ("%") replace "'" with ("%") replace "constructora" with ("const") replace "limitada" with ("l") replace "á" with ("%") replace "é" with ("%") replace "í" with ("%") replace "ó" with ("%") replace "ú" with ("%")
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Nombre_Cuenta__c LIKE '%" ++ nombre ++ "%' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+					
+</ee:variables>
+				</ee:transform>
+			
+</when>
+			<when expression='#[((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "XML"))]'>
+				<logger level="DEBUG" doc:name="SODIMAC XML" doc:id="3bec1cb0-12db-4a13-8249-5811191bb358" message="NOMBRE SOLICITANTE SODIMAC - XML" />
+				<ee:transform doc:name="destinatario" doc:id="d9e090d3-e026-48c0-b5fb-f95b131e6484">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+output application/json
+//var nombre = (trim(lower(vars.orderResponseIDP.nombreDestinatario)) default "") replace " " with ("%") replace "." with ("%") replace "-" with ("%") replace "," with ("%") replace "'" with ("%") replace "constructora" with ("const") replace "limitada" with ("l") replace "á" with ("%") replace "é" with ("%") replace "í" with ("%") replace "ó" with ("%") replace "ú" with ("%")
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Name LIKE '%"
+++ vars.orderResponseIDP.nombreDestinatario ++
+" %' and Cuenta__r.Name = '"
+++ vars.orderResponseIDP.nombreSolicitante ++
+(if(vars.orderResponseIDP.tipoOC == "LO") "' and (Concepto_de_B_squeda_2__c != 'CROSSDOCKING' AND Concepto_de_B_squeda_2__c != 'Cross Docking')"
+	else "' and (Concepto_de_B_squeda_2__c = 'CROSSDOCKING' OR Concepto_de_B_squeda_2__c = 'Cross Docking')"
+) ++ 
+" AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"
+]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<when expression='#[((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "GCP"))]'>
+				<logger level="DEBUG" doc:name="SODIMAC GCP" doc:id="ae3ae4d2-1ac1-48de-9ab1-d30e38e180d4" message="NOMBRE SOLICITANTE SODIMAC - GCP" />
+						<ee:transform doc:name="destinatario" doc:id="019e99ae-928b-49d8-b620-98d9ae701dd1">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+output application/json
+//var nombre = (trim(lower(vars.orderResponseIDP.nombreDestinatario)) default "") replace " " with ("%") replace "." with ("%") replace "-" with ("%") replace "," with ("%") replace "'" with ("%") replace "constructora" with ("const") replace "limitada" with ("l") replace "á" with ("%") replace "é" with ("%") replace "í" with ("%") replace "ó" with ("%") replace "ú" with ("%")
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE VLC_CodigoNombre__c = '"
+++ vars.orderResponseIDP.nombreDestinatario ++
+"' and Cuenta__r.Name = '"
+++ vars.orderResponseIDP.nombreSolicitante ++
+(if(vars.orderResponseIDP.tipoOC == "LO") "' and (Concepto_de_B_squeda_2__c != 'CROSSDOCKING' AND Concepto_de_B_squeda_2__c != 'Cross Docking')"
+	else "' and (Concepto_de_B_squeda_2__c = 'CROSSDOCKING' OR Concepto_de_B_squeda_2__c = 'Cross Docking')"
+) ++ 
+" AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"
+]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			
+</when>
+			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) and (vars.orderResponseIDP.canal == "10")]'>
+				<logger level="DEBUG" doc:name="EASY 10" doc:id="14a7245e-596a-4372-b7ad-a2f054ed601f" message="NOMBRE SOLICITANTE EASY - CANAL 10" />
+				<ee:transform doc:name="destinatario" doc:id="4887f378-37fb-4d87-b4a9-42e8e6cf94fe">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+import substringAfterLast,substringBeforeLast from dw::core::Strings
+output application/json
+
+var direccion = if(vars.orderResponseIDP.direccionDespachar != "0")
+					(substringBeforeLast(substringAfterLast((trim(lower(vars.orderResponseIDP.direccionDespachar)) default ""),"("),")"))
+				else vars.orderResponseIDP.direccionDespachar
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Name LIKE '%" ++ direccion ++ "%' AND Cuenta__c = '" ++ (vars.solicitante[0].Id default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart")) and (vars.orderResponseIDP.canal == "10")]'>
+				<logger level="DEBUG" doc:name="CONSTRUMART 10" doc:id="a6e03902-2950-4a37-b806-0343f00f8775" message="NOMBRE SOLICITANTE CONSTRUMART - CANAL 10" />
+				<ee:transform doc:name="destinatario" doc:id="50c28baf-a41d-432a-835f-8ba40683312e">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+import substringBefore from dw::core::Strings
+output application/json
+var direccion = if(vars.orderResponseIDP.direccionDespachar != "0")
+					if (lower(vars.orderResponseIDP.direccionDespachar) == "bodega central") "CM11"
+					else if (vars.orderResponseIDP.direccionDespachar contains " ") (substringBefore(vars.orderResponseIDP.direccionDespachar," "))
+					else (vars.orderResponseIDP.direccionDespachar)
+				else "NO ENCONTRADO"
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Name LIKE '%" ++ direccion ++ "%' AND Cuenta__c = '" ++ (vars.solicitante[0].Id default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")) and (lower(vars.orderResponseIDP.direccionDespachar) contains ("prodalam"))]'>
+						<logger level="INFO" doc:name="PRODALAM TIENDA" doc:id="a44cc49d-810b-4f03-9ed9-42bfff03fdfd" message="PRODALAM TIENDA - NAME"/>
+						<ee:transform doc:name="destinatario" doc:id="5cbc2fcf-b97a-489b-8bc0-20c800dd0158" >
+							<ee:message >
+							</ee:message>
+							<ee:variables >
+								<ee:set-variable variableName="destinatario" ><![CDATA[%dw 2.0
+import substringAfterLast from dw::core::Strings
+output application/json
+
+var direccion = trim(substringAfterLast((lower(vars.orderResponseIDP.direccionDespachar) default ""),"/")) replace " " with "%"
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Name LIKE '% " ++ direccion ++ "%' AND Cuenta__c = '" ++ (vars.solicitante[0].Id default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"
+//"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Name = '" ++ vars.orderResponseIDP.direccionDespachar ++ "' AND Cuenta__c = '" ++ (vars.solicitante[0].Id default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+					</when>
+					<otherwise>
+				<logger level="DEBUG" doc:name="DEFAULT" doc:id="451c6466-50fa-473e-b52d-1a730441cbba" message="DEFAULT" />
+				<ee:transform doc:name="destinatario" doc:id="526e19aa-0d54-4361-bada-76b901e84e48">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+						<ee:set-variable variableName="destinatario"><![CDATA[%dw 2.0
+output application/json
+var direccion = if(vars.orderResponseIDP.direccionDespachar != "0")
+					((trim(lower(vars.orderResponseIDP.direccionDespachar)) default "") replace "/" with ("") replace " " with ("%") replace "." with ("%") replace "-" with ("%") replace "," with ("%") replace "'" with ("%") replace "avenida" with ("av") replace "avda" with ("av") replace "á" with ("%") replace "é" with ("%") replace "í" with ("%") replace "ó" with ("%") replace "ú" with ("%"))
+				else vars.orderResponseIDP.direccionDespachar
+
+---
+"SELECT Id, Cod_Cliente__c, Global_regi_n__c FROM Tiernda_Obra__c WHERE Calle_Numero__c LIKE '%" ++ direccion ++ "%' AND Cuenta__c = '" ++ (vars.solicitante[0].Id default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+			
+</otherwise>
+		</choice>
+				<logger level="DEBUG" doc:name="destinatario" doc:id="35819ae8-e1bb-49f8-88ce-68ed5bd319be" message="#[vars.destinatario]" />
+				<salesforce:query doc:name="destinatario" doc:id="a6c682dc-d98b-4205-bf19-a1ea6a98cd17" config-ref="Salesforce_Config" target="destinatario">
+					<salesforce:salesforce-query><![CDATA[#[vars.destinatario]]]></salesforce:salesforce-query>
+				</salesforce:query>
+				<logger level="DEBUG" doc:name="destinatario" doc:id="db80a54d-67c0-4498-9e66-03b4930c21b1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.destinatario]" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="463a7cea-1ff6-4035-a1fe-4b1fe6b5070d" message="No tiene direccion de despacho"/>
+				<ee:transform doc:name="destinatario" doc:id="d57ee51d-a12c-4e60-939a-15cd65fcfd11" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="destinatario" ><![CDATA[%dw 2.0
+output application/json
+---
+[]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<salesforce:query doc:name="recordType" doc:id="a51ca5b6-4fc5-44f2-bbdd-45befe15a2ba" config-ref="Salesforce_Config" target="recordType">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id FROM RecordType WHERE DeveloperName=':developerName']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"developerName": p('secure::Salesforce.datosFijos.developerName')
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<choice doc:name="Choice" doc:id="a47dff85-9e9b-40a3-a385-333a45bb99e5" >
+			<when expression='#[vars.orderResponseIDP.source == "Correo"]'>
+				<ee:transform doc:name="bodyOrder CORREO" doc:id="adf83ee1-8b82-4c10-a286-9cb189671397">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="bodyOrder"><![CDATA[%dw 2.0
+output application/java
+var incoterms = vars.orderResponseIDP.incoterms1
+var salesOrg = vars.orderResponseIDP.rutVolcan match {
+				    case "96848750-7" -> "AVSA"
+				    case "90209000-2" -> "VOLC"
+				    case "77524300-7" -> "FIBR"
+				    else -> null
+				}
+---
+[{
+    "AccountId": vars.solicitante[0].Id default p('secure::Salesforce.datosFijos.clienteNoEncontrado'),
+    "EffectiveDate": now() as Date,
+    "Status": "Pendiente",
+    "N_Contrato_SAP__c": ((now() as LocalDateTime{format : "yyyy-MM-dd HH:mm:ss"} as DateTime) as Number) as String, //epoch
+    "Pricebook2Id": p('secure::Salesforce.datosFijos.pricebook2Id'),
+    "RecordTypeId": vars.recordType[0].Id,
+    "Tienda_Obra__c": vars.destinatario[0].Id default null,
+    "VM_ClasePedido__c": "ZCO2",
+    "VM_OrganizacionVentas__c": salesOrg default
+	    if (lower(vars.orderResponseIDP.nombreVolcan) contains "aislantes") "AVSA"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "fibrocementos") "FIBR"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "ind") "VOLC"
+	    else null,
+    "VM_Canal__c": vars.orderResponseIDP.canal,
+    "VM_Sector__c": "00",
+    "VM_NumeroOC__c": vars.orderResponseIDP.numeroOrden, 
+    "VM_FechaPedido__c": ((vars.orderResponseIDP.fecha as Date {format: "dd-MM-yyyy"}) default (vars.orderResponseIDP.fecha as Date {format: "dd-MM-yy"}) as String {format: "yyyy-MM-dd"}) as Date,
+    "VM_ValidoDe__c": now() as Date,
+    "VM_ValidezA__c": if ((vars.orderResponseIDP.canal == "10") and ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart"))) or ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "XML")))
+    					(vars.orderResponseIDP.fechaValidez as Date {format: "dd-MM-yyyy"} default "")
+    				  else if ((vars.orderResponseIDP.canal == "20") and (lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")))
+    				  (now() as Date + |P45D|)
+    				  else (now() as Date + |P90D|),
+    "VM_CondicionPago__c": vars.orderResponseIDP.condicionPago match {
+	    case "contado" -> "CTDO"
+	    case "15" -> "C015"
+	    case "30" -> "C030"
+	    case "45" -> "C045"
+	    case "60" -> "C060"
+	    case "75" -> "C075"
+	    case "90" -> "C090"
+	    case "120" -> "C120"
+	    case "180" -> "C180"
+	    else -> null
+	},
+    "VM_Incoterm1__c": incoterms, 
+    "VM_Incoterm2__c": if(incoterms == "CFV") "Costes y Flete Volcán" else "Retira Cliente", 
+    "VM_CalculoFlete__c": if(incoterms == "CFV") "Acepta cálculo flete automático" else "NO Acepta cálculo flete automático",
+    "VM_TipoInterloculorSolicitante__c": "AG",
+    "VM_CodigoSolicitante__c": vars.solicitante[0].Cod_Cliente__c default null,
+    "VM_TipoInterloculorDestinatario__c": "WE",
+    "VM_CodigoDestinatario__c": vars.destinatario[0].Cod_Cliente__c default null,
+    "CurrencyIsoCode": "CLP",
+    "VM_Remitente__c": vars.sender default "",
+    "VM_Email_Conversation_Id__c": vars.orderResponseIDP.conversationId default "",
+    "VM_Origen__c": vars.orderResponseIDP.source,
+    "VM_Asunto_Correo__c": vars.orderResponseIDP.subject,
+    "VM_Nombre_Documento_Correo__c": vars.orderResponseIDP.fileName,
+    "VM_Correos_en_copia_OC__c": vars.emailCC default ""
+}]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			</when>
+			<when expression='#[vars.orderResponseIDP.source == "GCP"]'>
+				<ee:transform doc:name="bodyOrder GCP" doc:id="2ec4847f-af06-4d12-bf9e-3d09fc68b3b9">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="bodyOrder"><![CDATA[%dw 2.0
+output application/java
+var incoterms = vars.orderResponseIDP.incoterms1
+var salesOrg = vars.orderResponseIDP.rutVolcan match {
+				    case "96848750-7" -> "AVSA"
+				    case "90209000-2" -> "VOLC"
+				    case "77524300-7" -> "FIBR"
+				    else -> null
+				}
+---
+[{
+    "AccountId": vars.solicitante[0].Id default p('secure::Salesforce.datosFijos.clienteNoEncontrado'),
+    "EffectiveDate": vars.orderResponseIDP.fecha as Date default "",
+    "Status": "Pendiente",
+    "N_Contrato_SAP__c": ((now() as LocalDateTime{format : "yyyy-MM-dd HH:mm:ss"} as DateTime) as Number) as String,
+    "Pricebook2Id": p('secure::Salesforce.datosFijos.pricebook2Id'),
+    "RecordTypeId": vars.recordType[0].Id,
+    "Tienda_Obra__c": vars.destinatario[0].Id default "",
+    "VM_ClasePedido__c": "ZCO2",
+    "VM_OrganizacionVentas__c": salesOrg default
+	    if (lower(vars.orderResponseIDP.nombreVolcan) contains "aislantes") "AVSA"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "fibrocementos") "FIBR"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "ind") "VOLC"
+	    else null,
+    "VM_Canal__c": vars.orderResponseIDP.canal default "",
+    "VM_Sector__c": "00",
+    "VM_NumeroOC__c": vars.orderResponseIDP.numeroOrden default "", 
+    "VM_FechaPedido__c": vars.orderResponseIDP.fecha as Date default "",
+    "VM_ValidoDe__c": vars.orderResponseIDP.fechaValidoDe as Date default "",
+    "VM_ValidezA__c": vars.orderResponseIDP.fechaValidezA as Date default "",
+    "VM_CondicionPago__c": vars.orderResponseIDP.condicionPago default "",
+    "VM_Incoterm1__c": incoterms,
+    "VM_Incoterm2__c": if(incoterms == "CFV") "Costes y Flete Volcán" else "Retira Cliente", 
+    "VM_CalculoFlete__c": if(incoterms == "CFV") "Acepta cálculo flete automático" else "NO Acepta cálculo flete automático",
+    "VM_TipoInterloculorSolicitante__c": "AG",
+    "VM_CodigoSolicitante__c": vars.solicitante[0].Cod_Cliente__c default "",
+    "VM_TipoInterloculorDestinatario__c": "WE",
+    "VM_CodigoDestinatario__c": vars.destinatario[0].Cod_Cliente__c default "",
+    "CurrencyIsoCode": "CLP",
+    "VM_Remitente__c": "",
+    "VM_Email_Conversation_Id__c": "",
+    "VM_Origen__c": vars.orderResponseIDP.source default "",
+    "VM_Asunto_Correo__c": "",
+    "VM_Nombre_Documento_Correo__c": "",
+    "VM_Correos_en_copia_OC__c": ""
+}]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.orderResponseIDP.source == "XML"]'>
+				<ee:transform doc:name="bodyOrder XML" doc:id="5806c509-66cd-4ec2-bb07-1a48c73fcd84">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="bodyOrder"><![CDATA[%dw 2.0
+output application/java
+var incoterms = vars.orderResponseIDP.incoterms1
+var salesOrg = vars.orderResponseIDP.rutVolcan match {
+				    case "96848750-7" -> "AVSA"
+				    case "90209000-2" -> "VOLC"
+				    case "77524300-7" -> "FIBR"
+				    else -> null
+				}
+---
+[{
+    "AccountId": vars.solicitante[0].Id default p('secure::Salesforce.datosFijos.clienteNoEncontrado'),
+    "EffectiveDate": now() as Date,
+    "Status": "Pendiente",
+    "N_Contrato_SAP__c": ((now() as LocalDateTime{format : "yyyy-MM-dd HH:mm:ss"} as DateTime) as Number) as String, //epoch
+    "Pricebook2Id": p('secure::Salesforce.datosFijos.pricebook2Id'),
+    "RecordTypeId": vars.recordType[0].Id,
+    "Tienda_Obra__c": vars.destinatario[0].Id default null,
+    "VM_ClasePedido__c": "ZCO2",
+    "VM_OrganizacionVentas__c": salesOrg default
+	    if (lower(vars.orderResponseIDP.nombreVolcan) contains "aislantes") "AVSA"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "fibrocementos") "FIBR"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "ind") "VOLC"
+	    else null,
+    "VM_Canal__c": vars.orderResponseIDP.canal,
+    "VM_Sector__c": "00",
+    "VM_NumeroOC__c": vars.orderResponseIDP.numeroOrden, 
+    "VM_FechaPedido__c": ((vars.orderResponseIDP.fecha as Date {format: "dd-MM-yyyy"}) default (vars.orderResponseIDP.fecha as Date {format: "dd-MM-yy"}) as String {format: "yyyy-MM-dd"}) as Date,
+    "VM_ValidoDe__c": now() as Date,
+    "VM_ValidezA__c": if ((vars.orderResponseIDP.canal == "10") and ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart"))) or ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "XML")))
+    					(vars.orderResponseIDP.fechaValidez as Date {format: "dd-MM-yyyy"} default "")
+    				  else if ((vars.orderResponseIDP.canal == "20") and (lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")))
+    				  (now() as Date + |P45D|)
+    				  else (now() as Date + |P90D|),
+    "VM_CondicionPago__c": vars.orderResponseIDP.condicionPago match {
+	    case "contado" -> "CTDO"
+	    case "15" -> "C015"
+	    case "30" -> "C030"
+	    case "45" -> "C045"
+	    case "60" -> "C060"
+	    case "75" -> "C075"
+	    case "90" -> "C090"
+	    case "120" -> "C120"
+	    case "180" -> "C180"
+	    else -> null
+	},
+    "VM_Incoterm1__c": incoterms, 
+    "VM_Incoterm2__c": if(incoterms == "CFV") "Costes y Flete Volcán" else "Retira Cliente", 
+    "VM_CalculoFlete__c": if(incoterms == "CFV") "Acepta cálculo flete automático" else "NO Acepta cálculo flete automático",
+    "VM_TipoInterloculorSolicitante__c": "AG",
+    "VM_CodigoSolicitante__c": vars.solicitante[0].Cod_Cliente__c default null,
+    "VM_TipoInterloculorDestinatario__c": "WE",
+    "VM_CodigoDestinatario__c": vars.destinatario[0].Cod_Cliente__c default null,
+    "CurrencyIsoCode": "CLP",
+    "VM_Remitente__c": vars.sender default "",
+    "VM_Email_Conversation_Id__c": vars.orderResponseIDP.conversationId default "",
+    "VM_Origen__c": vars.orderResponseIDP.source,
+    "VM_Asunto_Correo__c": vars.orderResponseIDP.subject,
+    "VM_Nombre_Documento_Correo__c": vars.orderResponseIDP.fileName,
+    "VM_Correos_en_copia_OC__c": vars.emailCC default ""
+}]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="bodyOrder" doc:id="72aaeb18-87e2-4b55-866d-9257b45b546e" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="bodyOrder" ><![CDATA[%dw 2.0
+output application/java
+var incoterms = vars.orderResponseIDP.incoterms1
+var salesOrg = vars.orderResponseIDP.rutVolcan match {
+				    case "96848750-7" -> "AVSA"
+				    case "90209000-2" -> "VOLC"
+				    case "77524300-7" -> "FIBR"
+				    else -> null
+				}
+---
+[{
+    "AccountId": vars.solicitante[0].Id default p('secure::Salesforce.datosFijos.clienteNoEncontrado'),
+    "EffectiveDate": now() as Date,
+    "Status": "Pendiente",
+    "N_Contrato_SAP__c": ((now() as LocalDateTime{format : "yyyy-MM-dd HH:mm:ss"} as DateTime) as Number) as String, //epoch
+    "Pricebook2Id": p('secure::Salesforce.datosFijos.pricebook2Id'),
+    "RecordTypeId": vars.recordType[0].Id,
+    "Tienda_Obra__c": vars.destinatario[0].Id default null,
+    "VM_ClasePedido__c": "ZCO2",
+    "VM_OrganizacionVentas__c": salesOrg default
+	    if (lower(vars.orderResponseIDP.nombreVolcan) contains "aislantes") "AVSA"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "fibrocementos") "FIBR"
+	    else if (lower(vars.orderResponseIDP.nombreVolcan) contains "ind") "VOLC"
+	    else null,
+    "VM_Canal__c": vars.orderResponseIDP.canal,
+    "VM_Sector__c": "00",
+    "VM_NumeroOC__c": vars.orderResponseIDP.numeroOrden, 
+    "VM_FechaPedido__c": ((vars.orderResponseIDP.fecha as Date {format: "dd-MM-yyyy"}) default (vars.orderResponseIDP.fecha as Date {format: "dd-MM-yy"}) as String {format: "yyyy-MM-dd"}) as Date,
+    "VM_ValidoDe__c": now() as Date,
+    "VM_ValidezA__c": if ((vars.orderResponseIDP.canal == "10") and ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart"))) or ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "XML")))
+    					(vars.orderResponseIDP.fechaValidez as Date {format: "dd-MM-yyyy"} default "")
+    				  else if ((vars.orderResponseIDP.canal == "20") and (lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")))
+    				  (now() as Date + |P45D|)
+    				  else (now() as Date + |P90D|),
+    "VM_CondicionPago__c": vars.orderResponseIDP.condicionPago match {
+	    case "contado" -> "CTDO"
+	    case "15" -> "C015"
+	    case "30" -> "C030"
+	    case "45" -> "C045"
+	    case "60" -> "C060"
+	    case "75" -> "C075"
+	    case "90" -> "C090"
+	    case "120" -> "C120"
+	    case "180" -> "C180"
+	    else -> null
+	},
+    "VM_Incoterm1__c": incoterms, 
+    "VM_Incoterm2__c": if(incoterms == "CFV") "Costes y Flete Volcán" else "Retira Cliente", 
+    "VM_CalculoFlete__c": if(incoterms == "CFV") "Acepta cálculo flete automático" else "NO Acepta cálculo flete automático",
+    "VM_TipoInterloculorSolicitante__c": "AG",
+    "VM_CodigoSolicitante__c": vars.solicitante[0].Cod_Cliente__c default null,
+    "VM_TipoInterloculorDestinatario__c": "WE",
+    "VM_CodigoDestinatario__c": vars.destinatario[0].Cod_Cliente__c default null,
+    "CurrencyIsoCode": "CLP",
+    "VM_Remitente__c": vars.sender default "",
+    "VM_Email_Conversation_Id__c": vars.orderResponseIDP.conversationId default "",
+    "VM_Origen__c": vars.orderResponseIDP.source,
+    "VM_Asunto_Correo__c": vars.orderResponseIDP.subject,
+    "VM_Nombre_Documento_Correo__c": vars.orderResponseIDP.fileName,
+    "VM_Correos_en_copia_OC__c": vars.emailCC default ""
+}]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="CREATE ORDER" doc:id="bea29c62-799e-4529-b7c0-bf64f3afd49a" message="CREATE ORDER" />
+		<logger level="INFO" doc:name="bodyOrder" doc:id="44f60898-3bc2-4303-8df7-ab86372b18d8" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.bodyOrder]"/>
+		<salesforce:create type="Order" doc:name="Order" doc:id="4f474777-47d8-41df-bf8b-ebedcd8a6076" config-ref="Salesforce_Config" target="orderCreated">
+			<reconnect />
+			<salesforce:records><![CDATA[#[vars.bodyOrder]]]></salesforce:records>
+		</salesforce:create>
+		<logger level="INFO" doc:name="orderCreated" doc:id="6b9cca6d-9a3a-43b1-a498-f6a6f9d3b837" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderCreated]"/>
+		<validation:is-not-null doc:name="orderId validation" doc:id="fb02efc2-8d66-4cfe-8b7f-9447ba688eb0" config-ref="Validation_Config" value="#[vars.orderCreated.items[0].id]" message='#["No se pudo crear la OC: " ++ (vars.orderCreated.items[0].exception.message default "")]'>
+			<error-mapping sourceType="VALIDATION:NULL" targetType="SF:CREATION_ERROR" />
+		</validation:is-not-null>
+		<choice doc:name="Choice" doc:id="4379d28a-1bff-467f-a7e7-a749ea028248" >
+			<when expression='#[vars.sender endsWith "@volcan.cl"]'>
+				<logger level="INFO" doc:name="name" doc:id="e4d1b190-4aaa-4614-8883-1f41161edf65" message='#["Create content version: " ++ vars.attachment.name]' />
+				<ee:transform doc:name="bodyContentVersion" doc:id="a624e773-406e-4b22-9f28-cbd0e651bbb0">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="bodyContentVersion"><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	"Title": vars.attachment.name,
+    "PathOnClient":"simple",
+    "ContentLocation":"S",
+    "FirstPublishLocationId": vars.orderCreated.items[0].id,
+    "VersionData": vars.attachment.contentBytes
+}]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<flow-ref doc:name="contentVersion_subFlow" doc:id="e21dd137-439c-4650-94c8-54efc8ebdd0c" name="contentVersion_subFlow" />
+			</when>
+			<when expression="#[!isEmpty(vars.attachments)]">
+				<foreach doc:name="For Each allAttachments" doc:id="65d55891-52d3-4715-82db-a46c6b3173ea" collection="#[vars.allAttachments]" >
+					<logger level="INFO" doc:name="name" doc:id="779825dc-f2e2-4e3a-bf2a-62ab7ee94b0e" message='#["Create content version: " ++ payload.name]' />
+					<ee:transform doc:name="bodyContentVersion" doc:id="75f6e07e-a299-48f8-9818-c4b8a7787813" >
+						<ee:message />
+						<ee:variables >
+							<ee:set-variable variableName="bodyContentVersion" ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	"Title": payload.name,
+    "PathOnClient":"simple",
+    "ContentLocation":"S",
+    "FirstPublishLocationId": vars.orderCreated.items[0].id,
+    "VersionData": payload.contentBytes
+}]]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="contentVersion_subFlow" doc:id="9182ded9-6e96-48a3-bf2f-98d4c2250557" name="contentVersion_subFlow" />
+				</foreach>
+			</when>
+		</choice>
+		<choice doc:name="Choice" doc:id="3c974025-a4a5-4a73-82db-39ba3b4d521f" >
+			<when expression="#[!isEmpty(vars.bodyContent)]">
+				<logger level="INFO" doc:name="CREATE CONTENTVERSION EMAIL" doc:id="3c835aa3-e0ad-4ce0-a5e2-62e23acba798" message="Create content version email body" />
+				<ee:transform doc:name="bodyContentVersionEmail" doc:id="241ba425-98b9-4d2a-8e36-4a0e6e1cd8e9" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="bodyContentVersionEmail" ><![CDATA[%dw 2.0
+import java!com::pdf::jsontoPdf
+output application/java
+---
+[{
+	"Title": "cuerpoEmail.pdf",
+    "PathOnClient":"simple",
+    "ContentLocation":"S",
+    "FirstPublishLocationId": vars.orderCreated.items[0].id,
+    "VersionData": jsontoPdf::jsontopdf(vars.bodyContent)
+}]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<salesforce:create type="ContentVersion" doc:name="ContentVersion Email" doc:id="456b97de-1a11-4e50-9ce1-13825cca843a" config-ref="Salesforce_Config" >
+					<salesforce:records ><![CDATA[#[vars.bodyContentVersionEmail]]]></salesforce:records>
+				</salesforce:create>
+				<choice doc:name="Choice" doc:id="20ab5373-30c6-463c-9a7c-fcd2a3824e45" >
+					<when expression="#[payload.items[0].id == null]" >
+						<logger level="INFO" doc:name="Logger" doc:id="a1a65a76-0762-4433-b314-f181bc46adb7" message='#[{&#10;	"emailId": vars.message.id default null,&#10;	"orderId": vars.orderCreated.items[0].id default null,&#10;	"error": "CREATION_ERROR",&#10;	"detail": "No se pudo cargar el pdf (cuerpo email): " ++ (payload.items[0].exception.message default ""),&#10;	"timestamp": now(),&#10;}]' />
+					</when>
+				</choice>
+			
+</when>
+		</choice>
+		<set-variable value="#[[]]" doc:name="orderProductArray" doc:id="06aadea4-40f8-408e-baca-67624372b4ee" variableName="orderProductArray"/>
+		<set-variable value="#[[]]" doc:name="orderFleteArray" doc:id="0b8916d9-af19-4bb3-8a9f-7bbfcca3bdbd" variableName="orderFleteArray"/>
+		<foreach doc:name="For Each" doc:id="207cbd08-6281-4228-81ae-5c4e47cd1d26" collection="#[vars.productList]">
+			<logger level="DEBUG" doc:name="FOR EACH PRODUCT LIST" doc:id="e68c1384-a96f-4372-a29b-6dd539da5d4e" message="FOR EACH PRODUCT LIST"/>
+			<ee:transform doc:name="codigoMaterial" doc:id="8c2db9a1-d467-414d-a657-bb8a399db7a5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="codigoMaterial" ><![CDATA[%dw 2.0
+output application/json
+---
+if((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and !(lower(payload.descripcion) contains ("pallet")) and (vars.orderResponseIDP.source == "Correo"))
+	payload.descripcion
+else if(lower(vars.orderResponseIDP.nombreSolicitante) contains ("redmat"))
+	payload.codigo 
+else if(lower(payload.descripcion) contains ("pallet"))
+	"PALLET"
+else
+	payload.codigo]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="material" doc:id="2c001308-fb3d-4bbb-ad0d-3a86ab7a0922" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="material" ><![CDATA[%dw 2.0
+output application/json
+var codigoSolicitante = ((vars.solicitante[0].Cod_Cliente__c default 0) as Number) as String
+---
+"SELECT Id, Cod_Prod_Volc__c FROM Homologacion_Materiales__c WHERE Cod_Sap_Cliente__c='" ++ codigoSolicitante ++ "' AND Cod_Prod_Cliente__c='" ++ vars.codigoMaterial ++ "'"]]></ee:set-variable>
+				
+</ee:variables>
+			</ee:transform>
+			<logger level="DEBUG" doc:name="material" doc:id="849f72b2-6014-456e-912b-2323033f8235" message="#[vars.material]"/>
+			<salesforce:query doc:name="material" doc:id="7efd292f-49e5-4a21-a618-f4da9b4a7789" config-ref="Salesforce_Config" target="material">
+			<salesforce:salesforce-query><![CDATA[#[vars.material]]]></salesforce:salesforce-query>
+		</salesforce:query>
+			<logger level="DEBUG" doc:name="material" doc:id="cb2755dc-74fd-4c2a-aad1-1dc078b9f3c8" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]"/>
+			<choice doc:name="Choice" doc:id="1538f7c7-537e-4426-8f2d-b76edde288f9" >
+				<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and vars.material[0].Id == null]'>
+					<logger level="DEBUG" doc:name="SOLICITANTE SODIMAC - MATERIAL ID = NULL" doc:id="c83783d2-6ac8-4344-a906-1e4360917de9" message="SOLICITANTE SODIMAC - MATERIAL ID = NULL"/>
+					<ee:transform doc:name="material" doc:id="fed4f5db-fc3d-4438-bdf0-64a9b84abddc" >
+						<ee:message />
+						<ee:variables >
+							<ee:set-variable variableName="material" ><![CDATA[%dw 2.0
+output application/json
+var split = vars.codigoMaterial splitBy " "
+var codigoMaterial = (if(sizeOf(split) > 2) 
+				    (split[0] ++ "%" ++ split[1]) ++ " " ++ (split[2 to -1] joinBy " ")
+				else if(sizeOf(split) > 1)
+				    split[0] ++ "%" ++ split[1]
+				else split[0]
+				) replace "-" with "%"
+var codigoSolicitante = ((vars.solicitante[0].Cod_Cliente__c default 0) as Number) as String
+--- 
+"SELECT Id, Cod_Prod_Volc__c FROM MS_Homol_Mat__mdt WHERE Cod_Sap_Cliente__c='" ++ codigoSolicitante ++ "' AND Cod_Prod_Cliente__c LIKE '" ++ codigoMaterial ++ "'"]]></ee:set-variable>
+						
+</ee:variables>
+					</ee:transform>
+					<logger level="DEBUG" doc:name="material" doc:id="fa60988f-7182-4425-9286-1e046e2f551a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.codigoMaterial]" />
+					<salesforce:query doc:name="material" doc:id="29b3e92e-ad10-4da9-9c7b-eb32f931cfb4" config-ref="Salesforce_Config" target="material" >
+						<salesforce:salesforce-query ><![CDATA[#[vars.material]]]></salesforce:salesforce-query>
+					</salesforce:query>
+					<logger level="DEBUG" doc:name="material" doc:id="f6f910c9-c1e7-4c75-888c-57b3a0979faa" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]" />
+				
+</when>
+			</choice>
+			<choice doc:name="Choice" doc:id="b43177d2-1848-460e-97c0-07e8dd8f97ba" >
+				<when expression="#[vars.material[0].Id != null]">
+					<logger level="DEBUG" doc:name="TIENE MATERIAL" doc:id="4fd05be0-d569-4ea7-95a3-9d6da08297ab" message="TIENE MATERIAL"/>
+					<ee:transform doc:name="convUnid" doc:id="a13b7260-f108-465f-b034-32a10f6d910e">
+						<ee:message>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="convUnid" ><![CDATA[%dw 2.0
+output application/java
+
+var UMCliente = lower(payload.unidad) match {
+	case "bal" -> "UN"
+	case "bl" -> "BTO"
+	case "bol" -> "BOL"
+	case "bols" -> "BOL"
+	case "bolsa" -> "BOL"
+	case "bt" -> "BTO"
+	case "bulto" -> "BTO"
+	case "c/u" -> "C/U"
+	case "ca" -> "PL"
+	case "cada uno" -> "C/U"
+	case "caj" -> "CJ"
+	case "caja" -> "CJ"
+	case "cj" -> "CJ"
+	case "cs" -> "PAQ"
+	case "cu" -> "C/U"
+	case "kgs" -> "KG"
+	case "kilogramo" -> "KG"
+	case "m" -> "M2"
+	case "m2" -> "M2"
+	case "metro cuadrado" -> "M2"
+	case "mt." -> "M2"
+	case "mt2" -> "M2"
+	case "mtk" -> "M2"
+	case "mtr" -> "M2"
+	case "pak" -> "PAQ"
+	case "pal" -> "PAQ"
+	case "paq" -> "PAQ"
+	case "paqt" -> "PAQ"
+	case "paquete" -> "PAQ"
+	case "pk" -> "PAQ"
+	case "pl" -> "PL"
+	case "pla" -> "PL"
+	case "plancha" -> "PL"
+	case "pls" -> "PL"
+	case "rl" -> "ROL"
+	case "rll" -> "ROL"
+	case "ro" -> "ROL"
+	case "rol" -> "ROL"
+	case "roll" -> "ROL"
+	case "rollo" -> "ROL"
+	case "rollos" -> "ROL"
+	case "rom" -> "ROL"
+	case "sa" -> "SAC"
+	case "sac" -> "SAC"
+	case "saco" -> "SAC"
+	case "sc" -> "SAC"
+	case "tineta" -> "UN"
+	case "tir" -> "UN"
+	case "tnt" -> "UN"
+	case "tr" -> "UN"
+	case "un" -> "UN"
+	case "und" -> "UN"
+	case "uni" -> "UN"
+	case "unidad" -> "UN"
+	case "uno" -> "UN"
+	else -> payload.unidad
+}
+var codigoSolicitante = (vars.solicitante[0].Cod_Cliente__c as Number) as String
+---
+"SELECT Id, Contador__c, Denominador__c FROM Conversion_unidades__c WHERE Cod_Sap_Cliente__c='" ++ codigoSolicitante ++ "' AND Cod_Prod_Cliente__c='" ++ (vars.codigoMaterial default "") ++ "' AND Und_med__c='" ++ UMCliente ++ "'"]]></ee:set-variable>
+						
+</ee:variables>
+					</ee:transform>
+					<logger level="DEBUG" doc:name="convUnid" doc:id="a72a57a5-a7c1-4a84-ba3d-f8e549855524" message='#[vars.convUnid]' />
+					<salesforce:query doc:name="convUnid" doc:id="1817c5c1-5ee2-4df6-b070-e82e410f34d1" config-ref="Salesforce_Config" target="convUnid">
+			<salesforce:salesforce-query><![CDATA[#[vars.convUnid]]]></salesforce:salesforce-query>
+		</salesforce:query>
+					<logger level="DEBUG" doc:name="convUnid" doc:id="3e558aa6-2763-4a76-9124-2816afb92d45" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.convUnid]" />
+					<ee:transform doc:name="cantidadVolcan" doc:id="c63b1ec9-ed78-4b7d-b826-4f1d9ef045bf">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="cantidadVolcan"><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.convUnid[0].Id != null)
+	(vars.convUnid[0].Contador__c as Number / vars.convUnid[0].Denominador__c as Number) * payload.cantidad
+else payload.cantidad
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+					<logger level="DEBUG" doc:name="cantidadVolcan" doc:id="7bb5238b-a080-43f6-ae06-f1f831c7c1d7" message='#[%dw 2.0&#10;output application/json&#10;---&#10;"cantidad Volcan: " ++ vars.cantidadVolcan]'/>
+					<logger level="DEBUG" doc:name="QUERY PRODUCTO" doc:id="5fcf12f1-0abe-4afe-8f36-811e5dab16c3" message="QUERY PRODUCTO"/>
+					<ee:transform doc:name="producto" doc:id="f6c60dd6-5634-4f8c-91fc-dfec973614e0">
+						<ee:message>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="producto" ><![CDATA[%dw 2.0
+output application/json
+var codigoProducto =  vars.material[0].Cod_Prod_Volc__c
+---
+"SELECT Id, Peso_Neto__c, Unidad_de_Medida_Venta__c, Grupo_Materiales_2__c FROM Product2 WHERE ProductCode='" ++ codigoProducto ++ "' AND IsActive=true"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<logger level="DEBUG" doc:name="producto" doc:id="972174fe-c08f-433c-9dd4-1e34b6b11cfe" message="#[vars.producto]" />
+					<salesforce:query doc:name="producto" doc:id="26e301dd-5e4d-452f-bc2f-dfa63e5385e0" config-ref="Salesforce_Config" target="producto">
+			<salesforce:salesforce-query><![CDATA[#[vars.producto]]]></salesforce:salesforce-query>
+		</salesforce:query>
+					<logger level="DEBUG" doc:name="producto" doc:id="0bce4a6a-482e-4f6e-9482-c71f8223f719" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.producto]" />
+					<logger level="INFO" doc:name="QUERY PRICE BOOK" doc:id="712e4585-b966-44e2-aa30-b13a3375f35d" message="QUERY PRICE BOOK"/>
+					<ee:transform doc:name="pricebookEntry" doc:id="87c0c122-cbaa-497d-9f74-ee6e53b9723e">
+								<ee:message>
+								</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="pricebookEntry" ><![CDATA[%dw 2.0
+output application/json
+var pricebookId = p('secure::Salesforce.datosFijos.pricebook2Id')
+var productoId = vars.producto[0].Id default p('secure::Salesforce.datosFijos.productoNoEncontrado')
+---
+"SELECT Id FROM PricebookEntry WHERE Pricebook2Id='" ++ pricebookId ++ "' AND Product2Id='" ++ productoId ++ "' AND CurrencyIsoCode='CLP'"]]></ee:set-variable>
+						</ee:variables>
+							</ee:transform>
+					<salesforce:query doc:name="pricebookEntryId" doc:id="3c8193af-2a82-41ac-ae93-11672c0e0a9d" config-ref="Salesforce_Config" target="pricebookEntry">
+				<salesforce:salesforce-query><![CDATA[#[vars.pricebookEntry]]]></salesforce:salesforce-query>
+			</salesforce:query>
+					<logger level="DEBUG" doc:name="pricebookEntry" doc:id="3df3aa68-331f-4d38-a695-6955785a85b5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntry]" />
+					<logger level="DEBUG" doc:name="QUERY FLETE" doc:id="a5d2a1a1-dea1-4102-a1e5-19369f487371" message="QUERY FLETE" />
+					<ee:transform doc:name="fletee" doc:id="3120c96d-b04b-4d36-b647-4756e390642f" >
+						<ee:message >
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="flete" ><![CDATA[%dw 2.0
+output application/json
+var	subFamilia = vars.producto[0].Grupo_Materiales_2__c
+---
+"SELECT Id, Prod_Flete__c, Unid_med_base__c FROM MS_Rel_Fletes__mdt WHERE Subfam_Prod__c='" ++ subFamilia ++ "'"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<logger level="DEBUG" doc:name="flete" doc:id="29a1263d-a1c2-40b7-8e4d-7911264b6c8c" message="#[vars.flete]" />
+					<salesforce:query doc:name="flete" doc:id="a64b645a-5674-4a87-9f14-8b93e773536c" config-ref="Salesforce_Config" target="flete">
+			<salesforce:salesforce-query><![CDATA[#[vars.flete]]]></salesforce:salesforce-query>
+		</salesforce:query>
+					<logger level="DEBUG" doc:name="flete" doc:id="9f447e77-2338-4f66-88f8-eed49eacd7e7" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.flete]" />
+					<choice doc:name="Choice" doc:id="f6052e36-a97f-4b86-b829-4de9ab4df0f9">
+						<when expression="#[vars.bodyOrder[0].VM_Incoterm1__c == 'CFV' and vars.flete[0].Id != null // and !(lower(payload.descripcion) contains (&quot;pallet&quot;))]">
+							<logger level="DEBUG" doc:name="VM_Incoterm1__c == 'CFV'" doc:id="539d330c-c4b5-45c1-9333-e4bdde47dcee" message="VM_Incoterm1__c == 'CFV'"/>
+							<logger level="DEBUG" doc:name="QUERY PRODUCTO FLETE" doc:id="1ed1bf39-4347-4d3d-9da5-d2b4234ba007" message="QUERY PRODUCTO FLETE"/>
+							<ee:transform doc:name="productoFlete" doc:id="1bf26b3a-230d-4b67-8616-7eec7be95e91">
+								<ee:message>
+								</ee:message>
+								<ee:variables >
+									<ee:set-variable variableName="productoFlete" ><![CDATA[%dw 2.0
+output application/json
+var codigoFlete = vars.flete[0].Prod_Flete__c
+---
+"SELECT Id FROM Product2 WHERE ProductCode='" ++ codigoFlete ++ "' AND IsActive=true"]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<logger level="DEBUG" doc:name="productoFlete" doc:id="4fe3892d-ff9e-47d8-9934-1d9908058d18" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
+							<salesforce:query doc:name="productoFlete" doc:id="d980657b-28e7-4ed2-a7da-caf2548feeb4" config-ref="Salesforce_Config" target="productoFlete">
+				<salesforce:salesforce-query><![CDATA[#[vars.productoFlete]]]></salesforce:salesforce-query>
+			</salesforce:query>
+							<logger level="DEBUG" doc:name="productoFlete" doc:id="07c34c47-fe70-4c95-8f88-d0512621f7c0" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
+							<logger level="DEBUG" doc:name="QUERY PRICE BOOK" doc:id="fb7287bf-3066-4da9-9576-01e1c81ccff0" message="QUERY PRICE BOOK" />
+							<ee:transform doc:name="pricebookEntryFlete" doc:id="832dd763-95cc-41b3-8220-933eaab9c67f">
+								<ee:message>
+								</ee:message>
+								<ee:variables >
+									<ee:set-variable variableName="pricebookEntryFlete" ><![CDATA[%dw 2.0
+output application/json
+var pricebookId = p('secure::Salesforce.datosFijos.pricebook2Id')
+var productoFleteId = vars.productoFlete[0].Id default p('secure::Salesforce.datosFijos.productoNoEncontrado')
+---
+"SELECT Id FROM PricebookEntry WHERE Pricebook2Id='" ++ pricebookId ++ "' AND Product2Id='" ++ productoFleteId ++ "' AND CurrencyIsoCode='CLP'"]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<logger level="DEBUG" doc:name="pricebookEntry" doc:id="a4d1ea99-eadc-480d-a1eb-144035b1e47d" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
+							<salesforce:query doc:name="pricebookEntryFlete" doc:id="187f7bc6-0746-4c2c-bff1-f04baea65dfc" config-ref="Salesforce_Config" target="pricebookEntryFlete">
+				<salesforce:salesforce-query><![CDATA[#[vars.pricebookEntryFlete]]]></salesforce:salesforce-query>
+			</salesforce:query>
+							<logger level="DEBUG" doc:name="pricebookEntryFlete" doc:id="2dad386c-081e-469b-9df2-c7abf0b7da33" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
+							<ee:transform doc:name="UMflete" doc:id="69f14672-3682-4103-a550-a12ab18732a0">
+								<ee:message>
+								</ee:message>
+								<ee:variables >
+									<ee:set-variable variableName="UMflete" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.flete[0].Unid_med_base__c == "UN")
+	"C/U"
+else 
+	vars.flete[0].Unid_med_base__c]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<logger level="DEBUG" doc:name="QUERY PRECIO FLETE" doc:id="64fa41b9-1463-4070-8e6f-600c7ec84ab8" message="QUERY PRECIO FLETE" />
+							<choice doc:name="Choice" doc:id="bb3a4f46-30a7-4d01-9175-946e2b98d174">
+								<when expression='#[((vars.orderResponseIDP.canal == "10") and ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")))) or ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")) and (vars.orderResponseIDP.canal == "20"))]'>
+									<ee:transform doc:name="precioFlete" doc:id="9d94839f-4be5-484d-b4db-ef7bb6925760" >
+										<ee:message />
+										<ee:variables >
+											<ee:set-variable variableName="precioFlete" ><![CDATA[%dw 2.0
+output application/json
+var OrgVta = vars.bodyOrder[0].VM_OrganizacionVentas__c
+var CanDist = vars.orderResponseIDP.canal
+var CodCte = ((vars.solicitante[0].Cod_Cliente__c default 0) as Number as String)
+var CodDest = ((vars.destinatario[0].Cod_Cliente__c default 0) as Number as String)
+var Material = ((vars.flete[0].Prod_Flete__c default 0) as Number as String)
+---
+"SELECT Importe as Precio__c FROM `009-ov-cd-gc-cte-dest-mat` WHERE " ++ 
+"OrgVta='" ++ OrgVta ++ 
+"' AND CanDist='" ++ CanDist ++
+"' AND CodCte='" ++ CodCte ++ 
+"' AND CodDest='" ++ CodDest ++ 
+"' AND Material='" ++ Material ++ 
+"' ORDER BY ValidoDe DESC"]]></ee:set-variable>
+											<ee:set-variable variableName="fleteMySQL" ><![CDATA[%dw 2.0
+output application/json
+---
+true]]></ee:set-variable>
+										</ee:variables>
+									</ee:transform>
+									<logger level="DEBUG" doc:name="precioFlete" doc:id="441eadb3-6e1f-4b49-84e4-edd1a0532077" message="#[vars.precioFlete]" />
+									<until-successful maxRetries="3" doc:name="Until Successful" doc:id="285bc1a5-d2ed-44ac-81b0-5aa958d62bef" millisBetweenRetries="5000">
+										<db:select doc:name="Select" doc:id="946b2cc7-2c1d-462b-9e1d-90ad6860802a" config-ref="Database_Config" target="precioFlete">
+										<db:sql><![CDATA[#[vars.precioFlete]]]></db:sql>
+									</db:select>
+									</until-successful>
+									<logger level="DEBUG" doc:name="precioFlete" doc:id="946ff983-70ad-44e2-8eb9-a312c006acff" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
+									<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="d888532a-ebf2-4673-841e-22da58d1d461" >
+										<ee:message >
+										</ee:message>
+										<ee:variables >
+											<ee:set-variable variableName="precioFlete" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+vars.precioFlete map () -> {
+	"Precio__c": 
+}&#93;&#93;></ee:set-variable>
+										</ee:variables>
+									</ee:transform> [STUDIO] -->
+								</when>
+								<otherwise >
+									<ee:transform doc:name="precioFlete" doc:id="a2e1cd0c-b719-458e-b84d-b9194f4594e7">
+								<ee:message>
+								</ee:message>
+								<ee:variables>
+									<ee:set-variable variableName="precioFlete"><![CDATA[%dw 2.0
+output application/json
+var region = (vars.destinatario[0].Global_regi_n__c default p('secure::Salesforce.datosFijos.regionPorDefecto'))
+var UMFlete = if(vars.flete[0].Unid_med_base__c == "UN")
+					"C/U"
+				else 
+					vars.flete[0].Unid_med_base__c
+---
+"SELECT Id, Precio__c FROM MS_Precio_Fletes__mdt WHERE Regi_n__c='" ++ region ++ "' AND UMV__c='" ++ UMFlete ++ "'"]]></ee:set-variable>
+											<ee:set-variable variableName="fleteMySQL" ><![CDATA[%dw 2.0
+output application/json
+---
+false]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+									<logger level="DEBUG" doc:name="precioFlete" doc:id="712d0ede-50e6-44be-b370-f038c67cff2e" message="#[vars.precioFlete]" />
+									<salesforce:query doc:name="precioFlete" doc:id="8917658a-e59f-47db-be37-4ef65e68ba67" config-ref="Salesforce_Config" target="precioFlete">
+			<salesforce:salesforce-query><![CDATA[#[vars.precioFlete]]]></salesforce:salesforce-query>
+		</salesforce:query>
+									<logger level="DEBUG" doc:name="precioFlete" doc:id="f6174b64-68bf-4c59-8759-a266755046e9" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
+								</otherwise>
+							</choice>
+							<ee:transform doc:name="cantidadFlete" doc:id="d1229ad4-b95d-42d7-b23c-0a45e13eff40">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="cantidadFlete"><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.flete[0].Unid_med_base__c == 'KG') 
+	vars.cantidadVolcan * vars.producto[0].Peso_Neto__c as Number
+else vars.cantidadVolcan]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+							<logger level="DEBUG" doc:name="cantidadFlete" doc:id="ae12100f-b752-48f9-a330-1490aef75fca" message='#["cantidadFlete: " ++ vars.cantidadFlete as String]'/>
+							<ee:transform doc:name="precioTotalFlete" doc:id="388e0b85-b0ae-4b40-9350-d08e6f8a5526">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="precioTotalFlete"><![CDATA[%dw 2.0
+output application/java
+---
+(vars.precioFlete[0].Precio__c default 0) as Number * vars.cantidadFlete]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+							<logger level="DEBUG" doc:name="precioTotalFlete" doc:id="b8f96edb-0375-41e7-a8d9-65fa50c7a113" message='#["precioTotalFlete: " ++ vars.precioTotalFlete as String]'/>
+							<ee:transform doc:name="precioTotalMaterial" doc:id="2274452d-03aa-4b57-9ca1-47347318c10a">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="precioTotalMaterial"><![CDATA[%dw 2.0
+output application/java
+---
+if((isEmpty(vars.fleteList)) and (payload.precioTotal > 0) and (vars.fleteMySQL == false))
+	payload.precioTotal - vars.precioTotalFlete
+else
+	payload.precioTotal]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+							<logger level="DEBUG" doc:name="precioTotalMaterial" doc:id="68ec006a-e52a-4435-88de-ec0ba276d608" message='#["precioTotalMaterial: " ++ vars.precioTotalMaterial as String]'/>
+							<ee:transform doc:name="precioUnitarioMaterial" doc:id="d204b43b-ac34-42f3-ae25-4e76c2c50565">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="precioUnitarioMaterial"><![CDATA[%dw 2.0
+output application/java
+---
+vars.precioTotalMaterial / vars.cantidadVolcan]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+							<logger level="DEBUG" doc:name="precioUnitarioMaterial" doc:id="4c2cb163-6737-4668-829d-da181bcf3fd1" message='#["precioUnitarioMaterial: " ++ vars.precioUnitarioMaterial as String]'/>
+							<ee:transform doc:name="bodyOrderFlete" doc:id="1ab07f3f-e22e-4b4b-aef3-3c58af993cf1">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="bodyOrderFlete"><![CDATA[%dw 2.0
+output application/java
+var centro = vars.bodyOrder[0].VM_OrganizacionVentas__c match {
+    case "AVSA" -> "AV03"
+    case "VOLC" -> "CV03"
+    case "FIBR" -> "FV03"
+    else -> null
+}
+---
+{
+    "OrderId": vars.orderCreated.items[0].id,
+    "Product2Id": vars.productoFlete[0].Id default p('secure::Salesforce.datosFijos.productoNoEncontrado'),
+    "PricebookEntryId": vars.pricebookEntryFlete[0].Id default p('secure::Salesforce.datosFijos.pricebookEntryId'),
+    "UnitPrice": vars.precioFlete[0].Precio__c default 1, 
+    "Quantity": vars.cantidadFlete, 
+    "VM_Item__c": "0",
+    "VM_Centro__c": centro,
+    "VM_UnidadMedida__c": vars.flete[0].Unid_med_base__c,
+    "VM_PuestoExpedicion__c": centro,
+    "VM_TipoCondicion__c": "ZPRE", 
+    "VM_UMPrecio__c": "1",
+    "VM_UMCondicion__c": vars.flete[0].Unid_med_base__c
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+							<ee:transform doc:name="orderFleteArray" doc:id="5d0db475-7360-4ada-83c0-be0751e807ff">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="orderFleteArray"><![CDATA[%dw 2.0
+output application/java
+---
+vars.orderFleteArray + vars.bodyOrderFlete]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+						
+</when>
+						<otherwise >
+							<logger level="DEBUG" doc:name="NO CALCULAR FLETE" doc:id="525ffbfc-2418-44f0-88f3-a4993d6e6415" message="NO CALCULAR FLETE"/>
+							<ee:transform doc:name="precioUnitarioMaterial" doc:id="c4483325-ae51-4ab3-8c43-14555f283d67">
+								<ee:message />
+								<ee:variables>
+									<ee:set-variable variableName="precioUnitarioMaterial"><![CDATA[%dw 2.0
+output application/java
+---
+payload.precioTotal / vars.cantidadVolcan]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+						
+</otherwise>
+					</choice>
+					<ee:transform doc:name="bodyOrderProduct" doc:id="a5cecdbb-db42-4b61-aff3-a61680237207">
+			<ee:message>
+			</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="bodyOrderProduct"><![CDATA[%dw 2.0
+output application/java
+var centro = vars.bodyOrder[0].VM_OrganizacionVentas__c match {
+    case "AVSA" -> "AV03"
+    case "VOLC" -> "CV03"
+    case "FIBR" -> "FV03"
+    else -> null
+}
+var unidadMedida = lower(vars.producto[0].Unidad_de_Medida_Venta__c) match {
+	case "bal" -> "UN"
+	case "bl" -> "BTO"
+	case "bol" -> "BOL"
+	case "bols" -> "BOL"
+	case "bolsa" -> "BOL"
+	case "bt" -> "BTO"
+	case "bulto" -> "BTO"
+	case "c/u" -> "C/U"
+	case "ca" -> "PL"
+	case "cada uno" -> "C/U"
+	case "caj" -> "CJ"
+	case "caja" -> "CJ"
+	case "cj" -> "CJ"
+	case "cs" -> "PAQ"
+	case "cu" -> "C/U"
+	case "kgs" -> "KG"
+	case "kilogramo" -> "KG"
+	case "m" -> "M2"
+	case "m2" -> "M2"
+	case "metro cuadrado" -> "M2"
+	case "mt." -> "M2"
+	case "mt2" -> "M2"
+	case "mtk" -> "M2"
+	case "mtr" -> "M2"
+	case "pak" -> "PAQ"
+	case "pal" -> "PAQ"
+	case "paq" -> "PAQ"
+	case "paqt" -> "PAQ"
+	case "paquete" -> "PAQ"
+	case "pk" -> "PAQ"
+	case "pl" -> "PL"
+	case "pla" -> "PL"
+	case "plancha" -> "PL"
+	case "pls" -> "PL"
+	case "rl" -> "ROL"
+	case "rll" -> "ROL"
+	case "ro" -> "ROL"
+	case "rol" -> "ROL"
+	case "roll" -> "ROL"
+	case "rollo" -> "ROL"
+	case "rollos" -> "ROL"
+	case "rom" -> "ROL"
+	case "sa" -> "SAC"
+	case "sac" -> "SAC"
+	case "saco" -> "SAC"
+	case "sc" -> "SAC"
+	case "tineta" -> "UN"
+	case "tir" -> "UN"
+	case "tnt" -> "UN"
+	case "tr" -> "UN"
+	case "un" -> "UN"
+	case "und" -> "UN"
+	case "uni" -> "UN"
+	case "unidad" -> "UN"
+	case "uno" -> "UN"
+	else -> vars.producto[0].Unidad_de_Medida_Venta__c
+}
+---
+{
+    "OrderId": vars.orderCreated.items[0].id,
+    "Product2Id": vars.producto[0].Id default p('secure::Salesforce.datosFijos.productoNoEncontrado'),
+    "PricebookEntryId": vars.pricebookEntry[0].Id default p('secure::Salesforce.datosFijos.pricebookEntryId'),
+    "UnitPrice": vars.precioUnitarioMaterial default 1, 
+    "Quantity": vars.cantidadVolcan default 1, 
+    "VM_Item__c": "0",
+    "VM_Centro__c": centro,
+    "VM_UnidadMedida__c": unidadMedida,
+    "VM_PuestoExpedicion__c": centro,
+    "VM_TipoCondicion__c": "ZPRE", 
+    "VM_UMPrecio__c": "1",
+    "VM_UMCondicion__c": unidadMedida,
+    "VM_MaterialSKUDestinatario__c": payload.codigo,
+    "VM_NombreMaterialDestinatario__c": payload.descripcion,
+    "VM_UMDestinatario__c": payload.unidad,
+    "VM_CantidadDestinatario__c": payload.cantidad as String,
+    "VM_PrecioDestinatario__c": payload.precioUnitario as String,
+    "VM_ValorDestinatario__c": payload.precioTotal as String
+}]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+				
+</when>
+				<otherwise >
+					<ee:transform doc:name="bodyOrderProduct" doc:id="fb5c4245-c405-41c9-aa94-d6767510d3f3">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="bodyOrderProduct"><![CDATA[%dw 2.0
+output application/java
+var centro = vars.bodyOrder[0].VM_OrganizacionVentas__c match {
+    case "AVSA" -> "AV03"
+    case "VOLC" -> "CV03"
+    case "FIBR" -> "FV03"
+    else -> null
+}
+var unidadMedida = null
+---
+{
+    "OrderId": vars.orderCreated.items[0].id,
+    "Product2Id": p('secure::Salesforce.datosFijos.productoNoEncontrado'),
+    "PricebookEntryId": p('secure::Salesforce.datosFijos.pricebookEntryId'),
+    "UnitPrice": 1, 
+    "Quantity": 1, 
+    "VM_Item__c": "0",
+    "VM_Centro__c": centro,
+    "VM_UnidadMedida__c": unidadMedida,
+    "VM_PuestoExpedicion__c": centro,
+    "VM_TipoCondicion__c": "ZPRE", 
+    "VM_UMPrecio__c": "1",
+    "VM_UMCondicion__c": unidadMedida,
+    "VM_MaterialSKUDestinatario__c": payload.codigo,
+    "VM_NombreMaterialDestinatario__c": payload.descripcion,
+    "VM_UMDestinatario__c": payload.unidad,
+    "VM_CantidadDestinatario__c": payload.cantidad as String,
+    "VM_PrecioDestinatario__c": payload.precioUnitario as String,
+    "VM_ValorDestinatario__c": payload.precioTotal as String
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+				</otherwise>
+			</choice>
+			<ee:transform doc:name="orderProductArray" doc:id="e96b403c-9925-4130-b045-34d9d71726ee" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="orderProductArray" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.orderProductArray + vars.bodyOrderProduct]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<logger level="DEBUG" doc:name="orderProductArray" doc:id="571b8e9d-dfd2-46da-a75a-3c1130e6d2ee" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderProductArray]"/>
+		<logger level="DEBUG" doc:name="orderFleteArray" doc:id="4cc48553-0915-4c29-825e-4d4038b42337" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderFleteArray]" />
+		<ee:transform doc:name="orderFleteArray  group by" doc:id="2b00c0b2-5cac-426e-9e9b-0a39a2a0c3ab" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="orderFleteArray" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.orderFleteArray groupBy ((item, index) -> item.Product2Id)
+    pluck ((items, productId) -> {
+        OrderId: items[0].OrderId,
+        Product2Id: productId,
+        PricebookEntryId: items[0].PricebookEntryId,
+        UnitPrice: items[0].UnitPrice,
+        Quantity: (items.Quantity reduce ((q, acc=0) -> acc + q)),
+        VM_Item__c: items[0].VM_Item__c,
+        VM_Centro__c: items[0].VM_Centro__c,
+        VM_UnidadMedida__c: items[0].VM_UnidadMedida__c,
+        VM_PuestoExpedicion__c: items[0].VM_PuestoExpedicion__c,
+        VM_TipoCondicion__c: items[0].VM_TipoCondicion__c,
+        VM_UMPrecio__c: items[0].VM_UMPrecio__c,
+        VM_UMCondicion__c: items[0].VM_UMCondicion__c
+    })]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="orderItems" doc:id="b55d1b77-ca3d-4b16-8fcd-1dfda190bdd8" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="orderItems" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.orderProductArray ++ vars.orderFleteArray
+	map ((item, index) -> 
+        item update {
+            case .VM_Item__c -> ((index + 1) * 10) as String {format: "000000"}
+        }
+    )]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="CREATE ORDER ITEM" doc:id="72ff8625-40a0-4a91-a788-ad140368807a" message="CREATE ORDER ITEM"/>
+		<logger level="INFO" doc:name="orderItems" doc:id="837d1bf6-d7a8-4759-810a-e5dc446712a1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderItems]"/>
+		<salesforce:create doc:name="OrderItem" doc:id="9741c0dc-6120-4f25-88eb-622ee9c6657e" config-ref="Salesforce_Config" type="OrderItem" >
+			<salesforce:records ><![CDATA[#[vars.orderItems]]]></salesforce:records>
+		</salesforce:create>
+		<logger level="INFO" doc:name="payload" doc:id="c1126230-6bfe-4ffd-aac9-4e363bf32e53" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+		<validation:is-not-null doc:name="orderItemId validation" doc:id="32b6e6fe-28b7-4f39-bd34-622c6360acf9" config-ref="Validation_Config" value="#[payload.items[0].id]" message='#["No se pudieron crear los OrderItems: " ++ (payload.items[0].exception.message default "")]'>
+			<error-mapping sourceType="VALIDATION:NULL" targetType="SF:CREATION_ERROR" />
+		</validation:is-not-null>
+		<logger level="INFO" doc:name="End" doc:id="b725a54f-ddc8-4c79-afc8-3682eaae9bea" message="END create-order-in-salesforce" category="create-order-in-salesforce"/>
+	
+</flow>
+	<sub-flow name="contentVersion_subFlow" doc:id="12daee37-38a3-42b3-b7ca-61169ed8755b" >
+		<salesforce:create type="ContentVersion" doc:name="ContentVersion" doc:id="133eaa5c-1101-47a1-948d-5344bb498fea" config-ref="Salesforce_Config" >
+			<salesforce:records ><![CDATA[#[vars.bodyContentVersion]]]></salesforce:records>
+		</salesforce:create>
+		<choice doc:name="Choice" doc:id="cbf7a20f-cbec-4af1-8879-3bea845a2dc7" >
+			<when expression="#[payload.items[0].id == null]" >
+				<logger level="INFO" doc:name="Logger" doc:id="d90e7008-5ab1-4f8b-b424-99e959ae1b8f" message='#[{&#10;	"emailId": vars.message.id default null,&#10;	"orderId": vars.orderCreated.items[0].id default null,&#10;	"error": "CREATION_ERROR",&#10;	"detail": "No se pudo cargar el pdf: " ++ (payload.items[0].exception.message default ""),&#10;	"timestamp": now(),&#10;}]' />
+			</when>
+		</choice>
+	</sub-flow>
+
+</mule>

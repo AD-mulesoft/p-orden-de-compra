@@ -1,0 +1,24 @@
+{
+  "esOrden": true,
+  "numeroOrden": "837665959",
+  "fecha": "30-06-2025",
+  "rutVolcan": "90209000-2",
+  "nombreVolcan": "CIA. IND. EL VOLCAN S.A.",
+  "rutSolicitante": "96792430-K",
+  "nombreSolicitante": "Sodimac S.A.",
+  "direccionDespachar": "0",
+  "canal": "20",
+  "incoterms1": "CFV",
+  "condicionPago": "100CH030FEF",
+  "nombreDestinatario": "SOC. FERRETERIA FRANCO LTDA.",
+  "items": [
+    {
+      "cantidad": 700,
+      "unidad": "Plancha",
+      "codigo": "738549",
+      "descripcion": "738549-YESOCARTON REB 10MM 1,2X2,4",
+      "precioUnitario": 4306,
+      "precioTotal": 3014200
+    }
+  ]
+}

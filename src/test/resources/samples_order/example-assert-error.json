@@ -1,0 +1,18 @@
+{
+  "emailId": null,
+  "error": {
+    "parentErrorType": {
+      "parentErrorType": {
+        "parentErrorType": null,
+        "identifier": "ANY",
+        "namespace": "MULE"
+      },
+      "identifier": "CONNECTIVITY",
+      "namespace": "MULE"
+    },
+    "identifier": "RETRY_EXHAUSTED",
+    "namespace": "MULE"
+  },
+  "detail": "An error occurred.",
+  "timestamp": "2025-09-18T10:26:34.0035467-03:00"
+}

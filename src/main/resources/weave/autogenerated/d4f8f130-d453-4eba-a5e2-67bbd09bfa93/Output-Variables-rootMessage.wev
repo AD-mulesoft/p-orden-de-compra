@@ -1,0 +1,157 @@
+%dw 2.0
+
+type auto_d4f8f130_d453_4eba_a5e2_67bbd09bfa93_Output_Variables_rootMessage = {|
+  payload: com_mulesoft_connector_outlook365_internal_metadata_schema_MessageSchemaContext {"class": "com.mulesoft.connector.outlook365.internal.metadata.schema.MessageSchemaContext",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.schema.MessageSchemaContext"}, 
+  attributes: Null
+|} {"typeId": "org.mule.runtime.api.message.Message"}
+type com_mulesoft_connector_outlook365_internal_metadata_schema_MessageSchemaContext = {|
+  bccRecipients?: Array<com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}>, 
+  body?: com_mulesoft_connector_outlook365_internal_metadata_model_Body {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.Body",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Body"}, 
+  bodyPreview?: String, 
+  categories?: Array<String>, 
+  ccRecipients?: Array<com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_8 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}>, 
+  changeKey?: String, 
+  conversationId?: String, 
+  conversationIndex?: String, 
+  createdDateTime?: String, 
+  flag?: com_mulesoft_connector_outlook365_internal_metadata_model_Flag {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Flag",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.Flag"}, 
+  from?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_21 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}, 
+  hasAttachments?: Boolean {"typeId": "java.lang.Boolean"}, 
+  id?: String, 
+  importance?: ("low" | "normal" | "high") {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Importance"}, 
+  inferenceClassification?: ("focused" | "other") {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.schema.MessageSchemaContext.InferenceClassification"}, 
+  internetMessageHeaders?: com_mulesoft_connector_outlook365_internal_metadata_model_InternetMessageHeaders {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.InternetMessageHeaders",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.InternetMessageHeaders"}, 
+  internetMessageId?: String, 
+  isDeliveryReceiptRequested?: Boolean {"typeId": "java.lang.Boolean"}, 
+  isDraft?: Boolean {"typeId": "java.lang.Boolean"}, 
+  isRead?: Boolean {"typeId": "java.lang.Boolean"}, 
+  isReadReceiptRequested?: Boolean {"typeId": "java.lang.Boolean"}, 
+  lastModifiedDateTime?: String, 
+  parentFolderId?: String, 
+  receivedDateTime?: String, 
+  replyTo?: Array<com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_34 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}>, 
+  sender?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_35 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}, 
+  sentDateTime?: String, 
+  subject?: String, 
+  toRecipients?: Array<com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_39 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}>, 
+  uniqueBody?: com_mulesoft_connector_outlook365_internal_metadata_model_Body_40 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.Body",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Body"}, 
+  webLink?: String
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.schema.MessageSchemaContext",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.schema.MessageSchemaContext"}
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_35 = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress = {|
+  address?: String, 
+  name?: String
+|} {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+
+
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_39 = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_Body_40 = {|
+  content?: String, 
+  contentType?: ("text" | "html") {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.ContentType"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.Body",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Body"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_8 = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_21 = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_Body = {|
+  content?: String, 
+  contentType?: ("text" | "html") {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.ContentType"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.Body",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Body"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount_34 = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_Flag = {|
+  completedDateTime?: com_mulesoft_connector_outlook365_internal_metadata_model_DateTime {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}, 
+  dueDateTime?: com_mulesoft_connector_outlook365_internal_metadata_model_DateTime_15 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}, 
+  flagStatus?: ("notFlagged" | "complete" | "flagged") {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Flag.FlagStatus"}, 
+  startDateTime?: com_mulesoft_connector_outlook365_internal_metadata_model_DateTime_18 {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+  "typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}
+|} {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.Flag",
+"class": "com.mulesoft.connector.outlook365.internal.metadata.model.Flag"}
+type com_mulesoft_connector_outlook365_internal_metadata_model_DateTime = {|
+  dateTime?: String, 
+  timeZone?: String
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_DateTime_15 = {|
+  dateTime?: String, 
+  timeZone?: String
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_DateTime_18 = {|
+  dateTime?: String, 
+  timeZone?: String
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.DateTime"}
+
+
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_InternetMessageHeaders = {|
+  name?: String, 
+  value?: String
+|} {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.InternetMessageHeaders",
+"class": "com.mulesoft.connector.outlook365.internal.metadata.model.InternetMessageHeaders"}
+
+
+type com_mulesoft_connector_outlook365_internal_metadata_model_EmailAccount = {|
+  emailAddress?: com_mulesoft_connector_outlook365_internal_metadata_model_EmailAddress {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAddress"}
+|} {"class": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount",
+"typeId": "com.mulesoft.connector.outlook365.internal.metadata.model.EmailAccount"}
+
+
+
+
+

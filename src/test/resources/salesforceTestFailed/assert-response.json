@@ -1,0 +1,22 @@
+{
+  "message": {
+    "subject": "MULESOFT: SALESFORCE_CREATION_ERROR",
+    "body": {
+      "contentType": "Text",
+      "content": "{\n  \"emailId\": null,\n  \"nombrePdf\": null,\n  \"orderId\": null,\n  \"error\": {\n    \"parentErrorType\": {\n      \"parentErrorType\": null,\n      \"identifier\": \"ANY\",\n      \"namespace\": \"MULE\"\n    },\n    \"identifier\": \"CREATION_ERROR\",\n    \"namespace\": \"SF\"\n  },\n  \"detail\": \"\",\n  \"timestamp\": \"2025-10-08T13:34:52.9062622-03:00\"\n}"
+    },
+    "toRecipients": [
+      {
+        "emailAddress": {
+          "address": "lvera@volcan.cl"
+        }
+      },
+      {
+        "emailAddress": {
+          "address": "ext.rcasella@volcan.cl"
+        }
+      }
+    ]
+  },
+  "saveToSentItems": "false"
+}

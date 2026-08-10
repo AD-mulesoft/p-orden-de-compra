@@ -1,0 +1,32 @@
+%dw 2.0
+
+type auto_12daee37_38a3_42b3_b7ca_61169ed8755b_Input_Variables_bodyOrder = Array<{|  AccountId: java_lang_Object {"class": "java.lang.Object",
+  "typeAlias": "Object",
+  "typeId": "java.lang.Object"} | String,   EffectiveDate: Date,   Status: String,   N_Contrato_SAP__c: String,   Pricebook2Id: String,   RecordTypeId: String {"typeId": "Id"} | Null,   Tienda_Obra__c: java_lang_Object_10 {"class": "java.lang.Object",
+  "typeAlias": "Object",
+  "typeId": "java.lang.Object"} | Null,   VM_ClasePedido__c: String,   VM_OrganizacionVentas__c: String | Null,   VM_Canal__c: String,   VM_Sector__c: String,   VM_NumeroOC__c: Any,   VM_FechaPedido__c: Date,   VM_ValidoDe__c: Date,   VM_ValidezA__c: Date,   VM_CondicionPago__c: String | Null,   VM_Incoterm1__c: String,   VM_Incoterm2__c: "Costes y Flete Volcán" | "Retira Cliente",   VM_CalculoFlete__c: "Acepta cálculo flete automático" | "NO Acepta cálculo flete automático",   VM_TipoInterloculorSolicitante__c: String,   VM_CodigoSolicitante__c: java_lang_Object_30 {"class": "java.lang.Object",
+  "typeAlias": "Object",
+  "typeId": "java.lang.Object"} | Null,   VM_TipoInterloculorDestinatario__c: String,   VM_CodigoDestinatario__c: java_lang_Object_34 {"class": "java.lang.Object",
+  "typeAlias": "Object",
+  "typeId": "java.lang.Object"} | Null,   CurrencyIsoCode: String,   VM_Remitente__c: String,   VM_Email_Conversation_Id__c: String|}>
+type java_lang_Object_30 = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object_34 = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object_10 = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+

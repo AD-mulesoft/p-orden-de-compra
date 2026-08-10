@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:idp-oc-easy-120="http://www.mulesoft.org/schema/mule/idp-oc-easy-120"
+xmlns:idp-oc-all-160="http://www.mulesoft.org/schema/mule/idp-oc-all-160"
+xmlns:idp-cuerpoemail-120="http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120"
+xmlns:pubsub="http://www.mulesoft.org/schema/mule/pubsub"
+xmlns:db="http://www.mulesoft.org/schema/mule/db"
+xmlns:validation="http://www.mulesoft.org/schema/mule/validation" 
+xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" 
+xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" 
+xmlns:sdc="http://www.mulesoft.org/schema/mule/sdc" 
+xmlns:sap="http://www.mulesoft.org/schema/mule/sap" 
+xmlns:salesforce-pub-sub="http://www.mulesoft.org/schema/mule/salesforce-pub-sub" 
+xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" 
+xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+xmlns:outlook365="http://www.mulesoft.org/schema/mule/outlook365" 
+xmlns="http://www.mulesoft.org/schema/mule/core" 
+xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/outlook365 http://www.mulesoft.org/schema/mule/outlook365/current/mule-outlook365.xsd
+http://www.mulesoft.org/schema/mule/http 
+http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/sap 
+http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/sdc 
+http://www.mulesoft.org/schema/mule/sdc/current/mule-sdc.xsd
+http://www.mulesoft.org/schema/mule/salesforce-pub-sub http://www.mulesoft.org/schema/mule/salesforce-pub-sub/current/mule-salesforce-pub-sub.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-100 http://www.mulesoft.org/schema/mule/idp-cuerpoemail-100/current/mule-idp-cuerpoemail-100.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/wsc 
+http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/db 
+http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/pubsub 
+http://www.mulesoft.org/schema/mule/pubsub/current/mule-pubsub.xsd
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120 
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120/current/mule-idp-cuerpoemail-120.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-all-160 http://www.mulesoft.org/schema/mule/idp-oc-all-160/current/mule-idp-oc-all-160.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-easy-120 http://www.mulesoft.org/schema/mule/idp-oc-easy-120/current/mule-idp-oc-easy-120.xsd">
+	<global-property doc:name="Global Property" doc:id="3ffcc2c4-249c-425d-993a-a718af9d4601" name="mule.env" value="qa" />
+	<global-property doc:name="Global Property" doc:id="12b84f8e-b701-421c-9b46-a507d8e13562" name="mule.key" value="Salesforce123571" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="7c1849d5-1ee0-4b7c-a63c-4c3b6affb842" file="config/config-secure-${mule.env}.yaml" key="${mule.key}" />
+	<configuration doc:name="Configuration" doc:id="9650f309-2e20-4488-a906-40e8ad181ff2" defaultErrorHandler-ref="error-handler" />
+	<outlook365:outlook365-config name="Outlook365_Outlook365_Config" doc:name="Outlook365 Outlook365 Config" doc:id="d6890283-e7c5-475c-ad06-754cdf01c9fd" >
+		<outlook365:oauth-client-credentials-connection baseUrl="${secure::Outlook.baseUrl}">
+			<reconnection >
+				<reconnect frequency="5000" count="5" />
+			</reconnection>
+			<outlook365:oauth-client-credentials clientId="${secure::Outlook.clientId}" clientSecret="${secure::Outlook.clientSecret}" tokenUrl="${secure::Outlook.tokenUrl}" scopes="${secure::Outlook.scopes}"/>
+		</outlook365:oauth-client-credentials-connection>
+	</outlook365:outlook365-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="73073cf7-c1ac-4016-9b09-8e2e945ab696" >
+		<salesforce:oauth-user-pass-connection consumerKey="${secure::Salesforce.clientId}" consumerSecret="${secure::Salesforce.clientSecret}" username="${secure::Salesforce.user}" password="${secure::Salesforce.pass}" tokenEndpoint="${secure::Salesforce.tokenUrl}" securityToken="${secure::Salesforce.token}">
+			<reconnection >
+				<reconnect frequency="5000" count="3" />
+			</reconnection>
+		</salesforce:oauth-user-pass-connection>
+	
+</salesforce:sfdc-config>
+	<sap:sap-config name="SAP_Config" doc:name="SAP Config" doc:id="27128c70-460c-4461-a13b-8b4dbc9c11ba" >
+		<sap:simple-connection-provider-connection password="${secure::SAP.password}" systemNumber="${secure::SAP.systemNumber}" client="${secure::SAP.clientId}" applicationServerHost="${secure::SAP.host}" username="${secure::SAP.username}" language="ES">
+			<reconnection >
+				<reconnect frequency="5000" count="5" />
+			</reconnection>
+
+		</sap:simple-connection-provider-connection>
+	</sap:sap-config>
+	<salesforce-pub-sub:pubsub-config name="Salesforce_PubSub_Config" doc:name="Salesforce PubSub Config" doc:id="56920bff-7124-468d-b081-718e53cdd42b" >
+		<salesforce-pub-sub:oauth-user-pass-connection consumerKey="${secure::Salesforce.clientId}" consumerSecret="${secure::Salesforce.clientSecret}" username="${secure::Salesforce.user}" password="${secure::Salesforce.pass}" tokenEndpoint="${secure::Salesforce.tokenUrl}" securityToken="${secure::Salesforce.token}">
+			<reconnection >
+				<reconnect frequency="5000" count="5" />
+			</reconnection>
+		</salesforce-pub-sub:oauth-user-pass-connection>
+	</salesforce-pub-sub:pubsub-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="9921e9d3-1cdb-4546-a5d8-7f10cfc56b1e" />
+	<http:request-config name="HTTP_Request_config_Sodimac" doc:name="HTTP Request config" doc:id="596cdf75-c8cd-4031-b842-171a20ffc653" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b215ed46-4685-4bb8-b900-20d2f5c33109" >
+		<db:my-sql-connection host="${secure::MySQL.host}" port="${secure::MySQL.port}" user="${secure::MySQL.username}" password="${secure::MySQL.password}" database="${secure::MySQL.db}" >
+			<reconnection >
+				<reconnect frequency="5000" count="3" />
+			</reconnection>
+		</db:my-sql-connection>
+	</db:config>
+		<pubsub:config name="Google_Pub_Sub_Configuration" doc:name="Google Pub Sub Configuration" doc:id="3ad767ea-b61e-488a-ab7c-6b5eb365e9c3">
+		<pubsub:connection authenticationMethod="service_account" privateKeyId="${secure::SodimacGCP.privateKeyId}" clientId="${secure::SodimacGCP.clientId}" clientEmail="${secure::SodimacGCP.clientEmail}" maxOutstandingElementCount="1">
+			<reconnection >
+				<reconnect frequency="5000" count="3" />
+			</reconnection>
+			<pubsub:private-key ><![CDATA[${secure::SodimacGCP.privateKey}]]></pubsub:private-key>
+		</pubsub:connection>
+	</pubsub:config>
+	<idp-cuerpoemail-120:config name="IDP___Cuerpo_email___1_2_0_Config" doc:name="IDP - Cuerpo email - 1.2.0 Config" doc:id="e41dd5a7-f3a0-43a4-93bb-c3c87890a4c7" property_host="${secure::IDP.host}" property_port="${secure::IDP.port}" property_basePath="${secure::IDP.basePath}" property_protocol="${secure::IDP.protocol}" property_responseTimeout="${secure::IDP.timeout}" property_client-id="${secure::IDP.clientId}" property_client-secret="${secure::IDP.clientSecret}" property_access-token-url="${secure::IDP.tokenUrl}"/>
+	<idp-oc-all-160:config name="IDP___OC_ALL___1_6_0_Config" doc:name="IDP - OC-ALL - 1.6.0 Config" doc:id="63011167-80fa-41f0-a072-ef454cbc2247"  property_host="${secure::IDP.host}" property_port="${secure::IDP.port}" property_protocol="${secure::IDP.protocol}" property_responseTimeout="${secure::IDP.timeout}" property_client-id="${secure::IDP.clientId}" property_client-secret="${secure::IDP.clientSecret}" property_basePath="${secure::IDP.basePath}" property_access-token-url="${secure::IDP.tokenUrl}"/>
+	<idp-oc-easy-120:config name="IDP___OC_EASY___1_2_0_Config" doc:name="IDP - OC-EASY - 1.2.0 Config" doc:id="6382ba64-a9fa-4a8f-8e86-6504f66759fd"  property_host="${secure::IDP.host}" property_port="${secure::IDP.port}" property_protocol="${secure::IDP.protocol}" property_responseTimeout="${secure::IDP.timeout}" property_client-id="${secure::IDP.clientId}" property_client-secret="${secure::IDP.clientSecret}" property_basePath="${secure::IDP.basePath}" property_access-token-url="${secure::IDP.tokenUrl}"/>
+
+</mule>

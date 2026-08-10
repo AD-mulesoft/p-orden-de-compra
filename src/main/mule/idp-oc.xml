@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:idp-oc-easy-120="http://www.mulesoft.org/schema/mule/idp-oc-easy-120" 
+xmlns:idp-oc-all-160="http://www.mulesoft.org/schema/mule/idp-oc-all-160"
+xmlns:idp-cuerpoemail-120="http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120"
+xmlns:idp-oc-easy-110="http://www.mulesoft.org/schema/mule/idp-oc-easy-110"
+xmlns:idp-oc-all-150="http://www.mulesoft.org/schema/mule/idp-oc-all-150"
+xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+xmlns="http://www.mulesoft.org/schema/mule/core" 
+xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core
+http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core
+http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-all-150
+http://www.mulesoft.org/schema/mule/idp-oc-all-150/current/mule-idp-oc-all-150.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-easy-110
+http://www.mulesoft.org/schema/mule/idp-oc-easy-110/current/mule-idp-oc-easy-110.xsd
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120 
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-120/current/mule-idp-cuerpoemail-120.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-all-160 http://www.mulesoft.org/schema/mule/idp-oc-all-160/current/mule-idp-oc-all-160.xsd
+http://www.mulesoft.org/schema/mule/idp-oc-easy-120 http://www.mulesoft.org/schema/mule/idp-oc-easy-120/current/mule-idp-oc-easy-120.xsd">
+	<sub-flow name="email-body-idp-process" doc:id="45fc366a-f437-4ca5-9951-1b060512ac8d">
+		<ee:transform doc:name="htmlTopdf" doc:id="1d5a7196-803a-478b-a322-5392a59701b3">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="htmlToPdf"><![CDATA[%dw 2.0
+
+import fromBase64 from dw::core::Binaries
+import java!com::pdf::jsontoPdf
+output application/java
+---
+fromBase64(jsontoPdf::jsontopdf(vars.bodyContent))
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="payload" doc:id="c756bd91-744e-4a65-b5fe-bfdc981f7c00">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output multipart/form-data
+---
+{
+    parts: {
+        "file": {
+            headers: {
+                "Content-Disposition": {
+                    name: "file",
+                    filename: "cuerpoEmail.pdf"
+                },
+                "Content-Type": "application/pdf"
+            },
+            content: vars.htmlToPdf
+        }
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="376c77a7-dc9f-44e2-87a8-1aca8c207cb1" millisBetweenRetries="5000">
+			<idp-cuerpoemail-120:postdocumentactionexecution doc:name="postDocumentActionExecution" doc:id="75fec06a-7735-4ce9-b089-81be3ac6b673" config-ref="IDP___Cuerpo_email___1_2_0_Config" target="responseIDP"/>
+		</until-successful>
+		<set-variable value="#[vars.responseIDP.id]" doc:name="Set executionId" doc:id="ed4aa095-d6cf-4153-9f34-d6f866e8f57f" variableName="executionId" />
+		<until-successful maxRetries="10" doc:name="Until Successful" doc:id="edea621e-3c41-4dab-bdf7-2e1372ea165d" millisBetweenRetries="5000">
+			<idp-cuerpoemail-120:getdocumentactionexecution doc:name="getDocumentActionExecution" doc:id="b86b5e96-1553-4d77-a2a3-51ce5ade388c" config-ref="IDP___Cuerpo_email___1_2_0_Config" execution-id="#[vars.executionId]"/>
+			<choice doc:name="Choice" doc:id="41e63801-8624-48df-bc0d-645e9243879b">
+				<when expression="#[payload.status == 'ACKNOWLEDGED' or payload.status == 'IN_PROGRESS' or payload.status == 'RESULTS_PENDING']">
+					<raise-error doc:name="Raise error" doc:id="7fcadbea-75a1-4fa5-b2b2-fa72e782ec24" type="ANY" />
+				</when>
+				<otherwise>
+					<logger level="INFO" doc:name="IDP response" doc:id="8bde6659-30c0-4dd7-b62c-5023a9d7dad8" message="Ok IDP" category="email-processing-for-purchase-orders" />
+				</otherwise>
+			</choice>
+		</until-successful>
+		<ee:transform doc:name="response" doc:id="012b70f7-32a8-4b8c-94b4-e86301f4c645">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.fields.direccionDespacho.value]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="orden-de-compra-idp-process" doc:id="274b3cf3-ab23-4e76-ba49-c7b4b95858b2" >
+		<ee:transform doc:name="payload" doc:id="8510bc73-6ce5-4e1b-bce1-86cfd4128774" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output multipart/form-data
+---
+{
+    parts: {
+        "file": {
+            headers: {
+                "Content-Disposition": {
+                    name: "file",
+                    filename: payload.name
+                },
+                "Content-Type": payload.contentType
+            },
+            content: fromBase64((payload.contentBytes default "") replace /_/ with ("/") replace /-/ with("+") replace /\./ with(" "))
+        }
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="5f511993-e83d-4b9b-b2e0-45ca1de4b899" >
+			<when expression='#[!isEmpty(vars.sfDomain) and (vars.sfDomain.VM_Nombre_Cliente__c == "Easy Retail S.A.")]'>
+				<logger level="INFO" doc:name="IDP EASY" doc:id="2b3c1e5e-71b2-41f0-ac52-cca560479031" message="IDP EASY" />
+				<ee:transform doc:name="IDP_ID" doc:id="b1998730-ea34-449d-bb6a-3f00361ce7d2" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="IDP_ID" ><![CDATA[%dw 2.0
+output application/json
+---
+"EASY"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="d0affdea-759c-4a8f-b63d-16c1e275565e" millisBetweenRetries="5000" >
+					<idp-oc-easy-120:postdocumentactionexecution doc:name="postDocumentActionExecution" doc:id="1ce0541a-b9c9-494a-b5c0-10f2c5dbf99f" config-ref="IDP___OC_EASY___1_2_0_Config" target="responseIDP"/>
+				</until-successful>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="NO IDP" doc:id="f4207db5-7001-449b-aa55-96770a432fb7" message="NO IDP" />
+				<logger level="INFO" doc:name="IDP ALL" doc:id="faec9152-5c4d-4079-9a77-5fafb621ca7d" message="IDP ALL" />
+				<ee:transform doc:name="IDP_ID" doc:id="67754538-6064-4aec-a1b6-adc7ce4035ed" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="IDP_ID" ><![CDATA[%dw 2.0
+output application/json
+---
+"ALL"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="fea8754f-b886-4689-a662-e5507b3cbccc" millisBetweenRetries="5000" >
+					<idp-oc-all-160:postdocumentactionexecution doc:name="postDocumentActionExecution" doc:id="739107ef-1c34-41b2-ac8f-33a2fdc1e5e5" config-ref="IDP___OC_ALL___1_6_0_Config" target="responseIDP"/>
+				</until-successful>
+			</otherwise>
+		</choice>
+		<set-variable value="#[vars.responseIDP.id]" doc:name="Set executionId" doc:id="8e25b696-4f26-42c4-bea7-d72d5d877840" variableName="executionId" />
+		<until-successful maxRetries="10" doc:name="Until Successful" doc:id="5451dc70-e62a-4ab5-8bba-d92aea2b07a4" millisBetweenRetries="5000" >
+			<choice doc:name="Choice" doc:id="a95e8162-7bcc-4df9-8f3a-219189c4f89e" >
+				<when expression='#[vars.IDP_ID == "ALL"]'>
+					<idp-oc-all-160:getdocumentactionexecution doc:name="getDocumentActionExecution" doc:id="bc11cf80-dbed-4107-9f03-5d8f9e2b08a7" config-ref="IDP___OC_ALL___1_6_0_Config" execution-id="#[vars.executionId]"/>
+				</when>
+				<when expression='#[vars.IDP_ID == "EASY"]'>
+					<idp-oc-easy-120:getdocumentactionexecution doc:name="getDocumentActionExecution" doc:id="d3bba30e-fefd-4975-beca-fcf54bc6198b" config-ref="IDP___OC_EASY___1_2_0_Config" execution-id="#[vars.executionId]"/>
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="NO IDP" doc:id="95aa4a40-e10d-42b8-9e90-901715ea8cd6" message="NO IDP" />
+				</otherwise>
+			</choice>
+			<choice doc:name="Choice" doc:id="71efc73e-978a-4456-8ca2-01b6e7654eb5" >
+				<when expression="#[payload.status == 'ACKNOWLEDGED' or payload.status == 'IN_PROGRESS' or payload.status == 'RESULTS_PENDING']" >
+					<raise-error doc:name="Raise error" doc:id="55f9e447-4c37-433f-9121-9b4abb4270e5" type="ANY" />
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="IDP response" doc:id="2cabe96e-370c-4e19-8072-40dade398354" message="Ok IDP" category="email-processing-for-purchase-orders" />
+					<logger level="DEBUG" doc:name="payload" doc:id="3822061b-0a9f-4152-8297-25939a12af3e" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+				</otherwise>
+			</choice>
+		</until-successful>
+	</sub-flow>
+</mule>

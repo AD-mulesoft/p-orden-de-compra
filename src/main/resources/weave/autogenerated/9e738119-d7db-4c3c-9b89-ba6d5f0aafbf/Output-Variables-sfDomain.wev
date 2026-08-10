@@ -1,0 +1,14 @@
+%dw 2.0
+
+type auto_9e738119_d7db_4c3c_9b89_ba6d5f0aafbf_Output_Variables_sfDomain = Array<VM_Mulesoft_Clientes_Dominio_Email__mdt {"label": "Mulesoft Clientes Dominio Email",
+"typeId": "VM_Mulesoft_Clientes_Dominio_Email__mdt"}>
+type VM_Mulesoft_Clientes_Dominio_Email__mdt = {|
+  VM_Codigo_Cliente_SAP__c?: String {"typeId": "VM_Codigo_Cliente_SAP__c"}, 
+  VM_Dominios__c?: String {"typeId": "VM_Dominios__c"}, 
+  VM_Nombre_Cliente__c?: String {"typeId": "VM_Nombre_Cliente__c"}, 
+  VM_RUT__c?: String {"typeId": "VM_RUT__c"}
+|} {"label": "Mulesoft Clientes Dominio Email",
+"typeId": "VM_Mulesoft_Clientes_Dominio_Email__mdt"}
+
+
+

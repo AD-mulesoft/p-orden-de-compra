@@ -1,0 +1,13 @@
+%dw 2.0
+
+type auto_ce4d0d81_2a93_4448_b9eb_42d4f59265ec_Output_Variables_destinatario = Array<Tiernda_Obra__c {"typeId": "Tiernda_Obra__c",
+"label": "Tienda/Obra"}>
+type Tiernda_Obra__c = {|
+  Cod_Cliente__c?: String {"typeId": "Cod_Cliente__c"}, 
+  Global_regi_n__c?: ("Metropolitana de Santiago" | "Arica y Parinacota" | "Tarapacá" | "Antofagasta" | "Atacama" | "Coquimbo" | "Valparaíso" | "Libertador General Bernardo OHiggins" | "Maule" | "Ñuble" | "Bío Bío" | "Araucanía" | "Los Ríos" | "Los Lagos" | "Aysén del General Carlos Ibáñez del Campo" | "Magallanes y Antártica Chilena") {"typeId": "Global_regi_n__c"}, 
+  Id?: String {"typeId": "Id"}
+|} {"typeId": "Tiernda_Obra__c",
+"label": "Tienda/Obra"}
+
+
+

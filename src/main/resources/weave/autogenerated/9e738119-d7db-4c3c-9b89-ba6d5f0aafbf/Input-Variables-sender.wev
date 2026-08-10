@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_9e738119_d7db_4c3c_9b89_ba6d5f0aafbf_Input_Variables_sender = String | Null
+

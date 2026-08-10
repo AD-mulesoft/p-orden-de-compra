@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_d4f8f130_d453_4eba_a5e2_67bbd09bfa93_Input_Variables_sfConvId = Array<{ _?: java_lang_Object {"class": "java.lang.Object",
+  "typeAlias": "Object",
+  "typeId": "java.lang.Object"} }>
+type java_lang_Object = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+

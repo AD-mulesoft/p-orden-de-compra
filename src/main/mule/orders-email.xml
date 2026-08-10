@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:idp-ordende-compra-1270="http://www.mulesoft.org/schema/mule/idp-ordende-compra-1270" 
+xmlns:idp-cuerpoemail-100="http://www.mulesoft.org/schema/mule/idp-cuerpoemail-100"
+xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+xmlns:outlook365="http://www.mulesoft.org/schema/mule/outlook365"
+xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
+xmlns:http="http://www.mulesoft.org/schema/mule/http"
+xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+xmlns="http://www.mulesoft.org/schema/mule/core"
+xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/outlook365 http://www.mulesoft.org/schema/mule/outlook365/current/mule-outlook365.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/idp-cuerpoemail-100 http://www.mulesoft.org/schema/mule/idp-cuerpoemail-100/current/mule-idp-cuerpoemail-100.xsd
+http://www.mulesoft.org/schema/mule/idp-ordende-compra-1270 http://www.mulesoft.org/schema/mule/idp-ordende-compra-1270/current/mule-idp-ordende-compra-1270.xsd">
+	<flow name="email-processing-for-purchase-orders" doc:id="1963ef85-5df8-43c6-ad20-2fb4956456f0" maxConcurrency="1">
+		<outlook365:new-email-listener doc:name="On New Email" doc:id="470e37c1-6273-4ee2-8104-f6c713e0032d" config-ref="Outlook365_Outlook365_Config" userId="${secure::Outlook.userId}" filter="hasAttachments eq true and not contains(subject,'Listado Confirmación Ordenes Compra')" bodyContentType="TEXT" mailFolderId="${secure::Outlook.mailFolderId}">
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="MINUTES" frequency="3"/>
+			</scheduling-strategy>
+		</outlook365:new-email-listener>
+		<set-variable value="#[now()]" doc:name="startTime" doc:id="c15c4216-fb55-4481-8f4d-4861b73f3be1" variableName="startTime" />
+		<logger level="INFO" doc:name="Start" doc:id="21e08c3a-a5a5-4aa4-b042-f1db414d8337" message="INIT email-processing-for-purchase-orders"/>
+		<logger level="INFO" doc:name="payload" doc:id="2878b26f-2a75-47c6-988d-9a2337bf8ed6" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+		<set-variable value="#[payload]" doc:name="message" doc:id="92e35a8b-0140-452d-8c28-036afbd90915" variableName="message"/>
+		<ee:transform doc:name="sender &amp; subject &amp; bodyContent" doc:id="f255e116-8f1b-4d4c-bfd6-540aa9333281">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="sender"><![CDATA[%dw 2.0
+output application/json
+---
+vars.message.sender.emailAddress.address]]></ee:set-variable>
+				<ee:set-variable variableName="subject"><![CDATA[%dw 2.0
+output application/json
+---
+vars.message.subject]]></ee:set-variable>
+				<ee:set-variable variableName="bodyContent" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.message.body.content]]></ee:set-variable>
+				<ee:set-variable variableName="emailCC" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.message.ccRecipients.emailAddress.address joinBy (',')]]></ee:set-variable>
+				<ee:set-variable variableName="domain" ><![CDATA[%dw 2.0
+import substringAfterLast from dw::core::Strings
+output application/json
+---
+substringAfterLast(vars.message.sender.emailAddress.address,"@")]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="sfDomain_subFlow" doc:id="cc4cead9-4bdc-453c-9155-3b8a44ffbc5e" name="sfDomain_subFlow" targetValue="#[ignore]"/>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="8bf70dfc-1932-45e2-a627-a2739bd26c01" millisBetweenRetries="5000">
+			<outlook365:list-message-attachments doc:name="List message attachments" doc:id="c66e122b-5ff8-4472-83bb-499456568067" config-ref="Outlook365_Outlook365_Config" userId="${secure::Outlook.userId}" messageId="#[vars.message.id]" mailFolderId="${secure::Outlook.mailFolderId}" target="allAttachments" />
+		</until-successful>
+		<foreach doc:name="For Each" doc:id="06ecf9ca-6bc0-4038-9e11-f584ba4d7b59" collection="#[payload.payload]">
+			<outlook365:get-message-attachment doc:name="Get message attachment" doc:id="17393fab-bec3-49c7-a962-7453065f01fc" config-ref="Outlook365_Outlook365_Config" messageId="#[vars.message.id]" userId="${secure::Outlook.userId}" attachmentId="#[payload.id]"/>
+			<ee:transform doc:name="allAttachments" doc:id="8c7a5e0e-fe72-40dc-9b9a-09c4867193c7">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="allAttachments"><![CDATA[%dw 2.0
+output application/json
+---
+(vars.allAttachments default []) ++ [payload]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		</foreach>
+		<ee:transform doc:name="allAttachments" doc:id="dbd2afa6-17a6-4eca-a9ed-850b320b91b9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="allAttachments" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.allAttachments filter ($.payload.contentBytes != null and $.payload.isInline != true and $.payload.size < 35000000)
+ map ((item, index) -> 
+        {
+            "name": item.payload.name,
+            "contentType": item.payload.contentType, 
+            "contentBytes": item.payload.contentBytes
+        })]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="allAttachments" doc:id="42fbac36-7242-4a10-84f3-02b217929cff" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.allAttachments]"/>
+		<ee:transform doc:name="attachments" doc:id="ad520eeb-0690-42d4-b18e-a8f1cf8089e0">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="attachments"><![CDATA[%dw 2.0
+output application/java
+---
+vars.allAttachments
+    filter ((item, index) -> (item.contentType == "application/pdf") or ((item.contentType == "application/octet-stream") and (item.name endsWith "pdf")))
+        map ((item, index) -> 
+        {
+            "name": item.name,
+            "contentType": item.contentType, 
+            "contentBytes": item.contentBytes
+        })]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="sfConvId" doc:id="d0c45ef0-d5f5-48c7-8e3b-397c7814bb76" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sfConvId" ><![CDATA[%dw 2.0
+output application/json
+---
+"SELECT Id, VM_Email_Conversation_Id__c FROM Order WHERE VM_Email_Conversation_Id__c = '" ++ vars.message.conversationId ++ "' LIMIT 1"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="sfConvId" doc:id="8a21784e-b6c9-43bd-84e5-662655de03fc" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfConvId]"/>
+		<salesforce:query-all doc:name="Query all" doc:id="a59018da-26d4-41a5-84cc-6aa87399afad" config-ref="Salesforce_Config" target="sfConvId">
+			<salesforce:salesforce-query ><![CDATA[#[vars.sfConvId]]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<logger level="INFO" doc:name="sfConvId" doc:id="1cac4132-069f-4d4d-9e0d-58005e9bf8c0" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfConvId]"/>
+		<choice doc:name="Choice" doc:id="ec9dabae-ed00-4c93-92f8-43b473b2c2e0" >
+			<when expression="#[isEmpty(vars.sfConvId)]">
+				<logger level="INFO" doc:name="NUEVO" doc:id="6d0dd12a-f7b6-4e5b-bc61-7e017aacf08d" message="NUEVA OC"/>
+				<choice doc:name="Choice" doc:id="94394085-6468-4523-8cfd-fcaa1dad3fde">
+			<when expression='#[((vars.sender contains ("ebema")) or (vars.sender contains ("easy")) or (vars.sender contains ("cencosud"))) and !isEmpty(vars.bodyContent) and !isEmpty(vars.attachments)]'>
+				<logger level="INFO" doc:name="SENDER CONTAINS" doc:id="cbf67813-6e18-4554-9f37-08274634a6d3" message="Send email body to IDP"/>
+				<flow-ref doc:name="email-body-idp-process" doc:id="39c57d14-a23d-4d2b-aa37-8cfb345a4fc7" name="email-body-idp-process" target="direccionDespachoBody" />
+			
+</when>
+		</choice>
+				<foreach doc:name="For Each attachments" doc:id="8a4dc20b-1aa1-4090-be63-89b2dcef4204" collection="#[vars.attachments]">
+			<set-variable value="#[payload]" doc:name="attachment" doc:id="6131248a-5bb6-4543-b0f5-489e4be9afb6" variableName="attachment" />
+			<logger level="INFO" doc:name="ATTACHMENT" doc:id="dc745579-c9cb-4ab1-b872-3e91aed53bc1" message='#["ATTACHMENT " ++ vars.attachment.name]'/>
+			<logger level="INFO" doc:name="Logger" doc:id="63ce3c91-0d9b-450e-afcd-14b9993bedfa" message="Send attachment to IDP"/>
+					<flow-ref doc:name="orden-de-compra-idp-process" doc:id="995b9950-d70a-4226-b999-2510fd357688" name="orden-de-compra-idp-process" />
+			<ee:transform doc:name="orderResponseIDP" doc:id="b2c82154-2168-4bee-873b-07c99d2ecd8d">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable resource="IDPtoSF/sfOC.dwl" variableName="orderResponseIDP" />
+				
+</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="orderResponseIDP update" doc:id="a62124ab-1271-427e-bd15-e35d51f46269">
+				<ee:message>
+				</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="orderResponseIDP"><![CDATA[%dw 2.0
+output application/json
+var isOrder = isEmpty(
+				    [
+				      { cliente: "ebema", ordenPrefix: "46" }
+				    ] 
+				    filter ((reg) -> 
+				      (lower(vars.orderResponseIDP.nombreSolicitante) contains reg.cliente) 
+				      and 
+				      !(vars.orderResponseIDP.numeroOrden startsWith reg.ordenPrefix)
+				    ))
+var canal = if ((lower(vars.orderResponseIDP.nombreSolicitante) contains "sodimac") and (sizeOf(vars.orderResponseIDP.numeroOrden) == 8)) "10"
+			else if ((lower(vars.orderResponseIDP.nombreSolicitante) contains "sodimac") and (sizeOf(vars.orderResponseIDP.numeroOrden) != 8) and (vars.orderResponseIDP.numeroOrden startsWith "8")) "20"
+			else if (
+				!isEmpty(
+				    [
+				      { cliente: "easy", ordenPrefix: "65" },
+				      { cliente: "construmart", ordenPrefix: "42" }
+				    ] 
+				    filter ((reg) -> 
+				      (lower(vars.orderResponseIDP.nombreSolicitante) contains reg.cliente) 
+				      and 
+				      (vars.orderResponseIDP.numeroOrden startsWith reg.ordenPrefix)
+				    )
+				  )
+				) 
+				"10" 
+			else "20"
+---
+vars.orderResponseIDP 
+	update {
+		case .esOrden -> (isOrder and ($ default false))
+		case .canal -> canal
+	}]]></ee:set-variable>
+							</ee:variables>
+			</ee:transform>
+			<logger level="DEBUG" doc:name="orderResponseIDP" doc:id="4ea97eb7-1693-4b8c-b8a9-7b4d6d3fc711" message="#[vars.orderResponseIDP]"/>
+			<choice doc:name="Choice" doc:id="330a2727-6f03-4079-89e8-111695991bdc">
+				<when expression="#[vars.orderResponseIDP.esOrden]">
+					<logger level="INFO" doc:name="SEND TO SF" doc:id="68fdd8c6-8106-410e-9de3-416c23d91471" message="SEND TO SF"/>
+					<flow-ref doc:name="create-order-in-salesforce" doc:id="5b2544d7-6d94-4b2f-8786-279905a3b1bb" name="create-order-in-salesforce" />
+				
+</when>
+				<otherwise>
+					<logger level="INFO" doc:name="invalid order" doc:id="8a8b7ee5-deb8-455d-a2e1-4632b87903a8" message="NOT A PURCHASE ORDER"/>
+				</otherwise>
+			</choice>
+		</foreach>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="EXISTE" doc:id="6d9c3f97-806d-4569-92f2-a7cdf47015e8" message="EXISTE OC"/>
+				<flow-ref doc:name="addAttachments_subFlow" doc:id="c8b4ced5-f354-49d5-94ad-0dc141bf6fe8" name="addAttachments_subFlow"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End" doc:id="d921a875-80da-4219-b7ed-e58a2308c681" message="END email-processing-for-purchase-orders"/>
+	
+</flow>
+	<sub-flow name="addAttachments_subFlow" doc:id="d4f8f130-d453-4eba-a5e2-67bbd09bfa93" >
+		<ee:transform doc:name="sfConvIdAttachments" doc:id="33db9104-ffd9-4696-8d3d-f786cd38e4e6" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="sfConvIdAttachments" ><![CDATA[%dw 2.0
+output application/json
+---
+"Select Id, ContentDocumentId, ContentDocument.Title, ContentDocument.ContentSize, LinkedEntity.Name, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId = '" ++ vars.sfConvId[0].Id ++ "'"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="sfConvIdAttachments" doc:id="11fbdad6-aef6-4e0b-b2cc-72b2d4a39725" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfConvIdAttachments]" />
+		<salesforce:query-all doc:name="Query all" doc:id="b42ea7f4-dbf9-4c25-84e0-0ebe67d18b1e" config-ref="Salesforce_Config" target="sfConvIdAttachments" >
+			<salesforce:salesforce-query ><![CDATA[#[vars.sfConvIdAttachments]]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<logger level="DEBUG" doc:name="sfConvIdAttachments" doc:id="58528aa2-a1d6-461b-87ee-cffeb0f1e659" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfConvIdAttachments]" />
+		<ee:transform doc:name="allAttachments" doc:id="0908796b-f35d-47e0-83b9-2dd8607494e2" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="allAttachments" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.allAttachments filter (item) -> !(vars.sfConvIdAttachments.ContentDocument.Title contains item.name)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="allAttachments" doc:id="4056311a-fcc4-494d-a89b-88883602bde1" message="#[vars.allAttachments]"/>
+		<foreach doc:name="For Each allAttachments" doc:id="3d056c69-a8db-4016-8acc-fd66febe3fd4" collection="#[vars.allAttachments]" >
+			<logger level="INFO" doc:name="name" doc:id="df422b6b-b26f-4687-98cb-997cdc53fc0a" message='#["Add attachment: " ++ payload.name]' category="email-processing-for-purchase-orders"/>
+			<ee:transform doc:name="bodyContentVersion" doc:id="c3f52aa3-e689-41fc-8eca-c0602b1b5eeb" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="bodyContentVersion" ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	"Title": payload.name,
+    "PathOnClient":"simple",
+    "ContentLocation":"S",
+    "FirstPublishLocationId": vars.sfConvId[0].Id,
+    "VersionData": payload.contentBytes
+}]]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="contentVersion_subFlow" doc:id="77087e3e-37f6-435e-9197-fc51f339b90b" name="contentVersion_subFlow" />
+		</foreach>
+	</sub-flow>
+	<sub-flow name="sfDomain_subFlow" doc:id="9e738119-d7db-4c3c-9b89-ba6d5f0aafbf" >
+		<salesforce:query-all doc:name="VM_Mulesoft_Clientes_Dominio_Email__mdt" doc:id="8b4a9530-b661-402f-b6ca-e2eb96620cb8" config-ref="Salesforce_Config" target="sfDomain">
+			<salesforce:salesforce-query ><![CDATA[SELECT VM_Nombre_Cliente__c, VM_RUT__c, VM_Codigo_Cliente_SAP__c, VM_Dominios__c
+FROM VM_Mulesoft_Clientes_Dominio_Email__mdt]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<logger level="DEBUG" doc:name="sfDomain" doc:id="0a298897-ad82-4d23-aae0-a7d66e532f59" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfDomain]" />
+		<ee:transform doc:name="sfDomain" doc:id="3c759dab-a799-41bb-b2ac-2656734b0207" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="sfDomain" ><![CDATA[%dw 2.0
+output application/json
+---
+//(vars.sfDomain filter (item) -> (item.VM_Dominios__c contains vars.domain))[0] default ""
+(vars.sfDomain filter (item) -> (item.VM_Dominios__c contains vars.subject))[0] default ""]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="sfDomain" doc:id="fd122d14-3c8a-4752-8561-19a406b5ef17" message="#[vars.sfDomain]"/>
+	</sub-flow>
+	<!-- [STUDIO:"VM_Mulesoft_Clientes_Dominio_Email__mdt"]<flow name="VM_Mulesoft_Clientes_Dominio_Email__mdt" doc:id="23df4a6c-247c-4b76-9a6c-95a6be423606" maxConcurrency="1">
+		<scheduler doc:name="Scheduler" doc:id="3721c815-9233-46d6-b345-a51cf2ceb47e">
+			<scheduling-strategy>
+				<fixed-frequency frequency="1" startDelay="1" timeUnit="DAYS" />
+			</scheduling-strategy>
+		</scheduler>
+		<salesforce:query-all doc:name="Query all" doc:id="20e02f45-8f0f-42fe-8ff0-cd6f62eedba4" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query><![CDATA[SELECT VM_Nombre_Cliente__c, VM_RUT__c, VM_Codigo_Cliente_SAP__c, VM_Dominios__c
+FROM VM_Mulesoft_Clientes_Dominio_Email__mdt&#93;&#93;></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<logger level="INFO" doc:name="payload" doc:id="1bc859cb-6c2f-4732-b0c7-7aa1e88692f6" message="#[%dw 2.0&#10;output application/json&#10;&#45;&#45;-&#10;payload&#93;" />
+		<ee:transform doc:name="sfDomain" doc:id="06177209-8bfd-4ed5-b9d3-a674a3afd801" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sfDomain" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+(vars.sfDomain filter (item) -> (item.VM_Dominios__c contains vars.domain))[0&#93; default "NODOMAIN"&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow> [STUDIO] -->
+	<!-- [STUDIO:"orders-email-idpFlow"]<flow name="orders-email-idpFlow" doc:id="b43d1843-b214-476e-b38c-3e0e0a154e2f" >
+		<outlook365:new-email-listener userId="${secure::Outlook.userId}" doc:name="On New Email" doc:id="c53f5471-82e0-4e77-a913-be73f0452c13" config-ref="Outlook365_Outlook365_Config" bodyContentType="TEXT" filter="hasAttachments eq true" mailFolderId="${secure::Outlook.mailFolderId}" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="3" timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</outlook365:new-email-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="ba20c7ae-b252-4eb4-a591-d343cfbc515f" message="#[%dw 2.0&#10;output application/json&#10;&#45;&#45;-&#10;payload&#93;"/>
+	</flow> [STUDIO] -->
+
+</mule>
