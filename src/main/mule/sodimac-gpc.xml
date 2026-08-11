@@ -60,7 +60,7 @@ fun trunc130 (value) = if((!isEmpty(value)) and (sizeOf(value) > 130000)) value[
 			</error-handler>
 		</try>
 		<choice doc:name="Choice" doc:id="73cc117e-8298-45fc-947e-eeb52cc1ce35" >
-			<when expression='#[((vars.oc.purchaseOrderInfo.statusId as String) != "7") and (vars.oc.purchaseOrderInfo."type" != "Compra Directa")]'>
+			<when expression='#[((vars.oc.purchaseOrderInfo.statusId as String) == "1") and (vars.oc.purchaseOrderInfo."type" != "Compra Directa")]'>
 				<ee:transform doc:name="sfOrderId" doc:id="b7c84ac4-ab38-49b9-af0b-39e2a312afec">
 					<ee:message>
 					</ee:message>
