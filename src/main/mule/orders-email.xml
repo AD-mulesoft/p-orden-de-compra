@@ -61,19 +61,19 @@ substringAfterLast(vars.message.sender.emailAddress.address,"@")]]></ee:set-vari
 		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="8bf70dfc-1932-45e2-a627-a2739bd26c01" millisBetweenRetries="5000">
 			<outlook365:list-message-attachments doc:name="List message attachments" doc:id="c66e122b-5ff8-4472-83bb-499456568067" config-ref="Outlook365_Outlook365_Config" userId="${secure::Outlook.userId}" messageId="#[vars.message.id]" mailFolderId="${secure::Outlook.mailFolderId}" target="allAttachments" />
 		</until-successful>
-		<foreach doc:name="For Each" doc:id="06ecf9ca-6bc0-4038-9e11-f584ba4d7b59" collection="#[payload.payload]">
-			<outlook365:get-message-attachment doc:name="Get message attachment" doc:id="17393fab-bec3-49c7-a962-7453065f01fc" config-ref="Outlook365_Outlook365_Config" messageId="#[vars.message.id]" userId="${secure::Outlook.userId}" attachmentId="#[payload.id]"/>
+		<!-- [STUDIO:"For Each"]<foreach doc:name="For Each" doc:id="06ecf9ca-6bc0-4038-9e11-f584ba4d7b59" collection="#[payload.payload&#93;">
+			<outlook365:get-message-attachment doc:name="Get message attachment" doc:id="17393fab-bec3-49c7-a962-7453065f01fc" config-ref="Outlook365_Outlook365_Config" messageId="#[vars.message.id&#93;" userId="${secure::Outlook.userId}" attachmentId="#[payload.id&#93;"/>
 			<ee:transform doc:name="allAttachments" doc:id="8c7a5e0e-fe72-40dc-9b9a-09c4867193c7">
 			<ee:message>
 			</ee:message>
 			<ee:variables>
 				<ee:set-variable variableName="allAttachments"><![CDATA[%dw 2.0
 output application/json
----
-(vars.allAttachments default []) ++ [payload]]]></ee:set-variable>
+&#45;&#45;-
+(vars.allAttachments default [&#93;) ++ [payload&#93;&#93;&#93;></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		</foreach>
+		</foreach> [STUDIO] -->
 		<ee:transform doc:name="allAttachments" doc:id="dbd2afa6-17a6-4eca-a9ed-850b320b91b9" >
 			<ee:message >
 			</ee:message>
