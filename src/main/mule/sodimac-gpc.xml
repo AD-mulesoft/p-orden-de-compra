@@ -84,6 +84,7 @@ output application/json
 			<ee:message />
 			<ee:variables>
 				<ee:set-variable variableName="orderResponseIDP"><![CDATA[%dw 2.0
+import leftPad from dw::core::Strings
 output application/json
 
 var CFV = ["Rep Tienda Multiple Despachos","Rep Tienda Acepta un Despacho","Rep Central Volumen","Compra Directa"]
@@ -103,7 +104,7 @@ var body = vars.oc.products
 //    "direccionDespachar": (vars.eOD filter ($.items[0].NRO_OC == body[0].NRO_OC))[0].items[0].DIREC_L_ENTREGA,
     "canal": "10",
     "incoterms1": if(CFV contains vars.oc.purchaseOrderInfo."type") "CFV" else if(RET contains vars.oc.purchaseOrderInfo."type") "RET" else "N/A",
-    "condicionPago": vars.oc.paymentTerms.days as String default "",
+    "condicionPago": ("C" ++ leftPad(vars.oc.paymentTerms.days as String, 3, "0")) default "",
 //    "nombreDestinatario": (vars.oc.purchaseOrderInfo.costCenterName splitBy " ")[0 to 1] joinBy "-",
     "nombreDestinatario": leftPad((vars.oc.purchaseOrderInfo.costCenter as String),2,"0"),
     "tipoOC": if(LO contains vars.oc.purchaseOrderInfo."type") "LO" else if(XD contains vars.oc.purchaseOrderInfo."type") "XD" else "N/A",

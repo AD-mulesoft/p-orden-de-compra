@@ -49,13 +49,10 @@ IDP:
 
 Outlook:
   baseUrl: "https://graph.microsoft.com/v1.0"
-#  clientId: "![b/PgOhEIeh/mkXmvSQ+sCoSAOA+zRq0wGF7NPlj2Fx8H8gVABwsHOYNmRV01S+Sc]"
-#  clientSecret: "![0cVuEMDdhXVczFoBKhthqVlnVZZZLzcEQnmba+vKQD/WLD7OO1itM8KdTARrEIs1]"
   clientId: "7871392a-5436-4bbe-82c0-49eb0eacc686"
   clientSecret: "An88Q~q6nW6hgSOX_eiWJgDYhHPUTDsLh3ugibQv"
   tokenUrl: "https://login.microsoftonline.com/70d6839a-fa81-48e1-991e-1302e0329802/oauth2/v2.0/token"
   scopes: "https://graph.microsoft.com/.default"
-#  userId: "![Pp6zcveUfqEeHrPAhE+ju4AW/8E4JTwTlXn03aZjfQxSDJcmfPHCDAR3Gl+G0ENy]"
   userId: "d64958b0-1e22-40bd-837a-52cf72b2d205"  
   mailFolderId: "AAMkADc3YmMxNGQ4LTE1MjYtNDQzMC05NjQ0LTIzYTg2YzEyMWVkYwAuAAAAAADnrd-SeVeWQYOWpY4RnuYZAQDgYH7pneYUSrUi75jtOJxZAAAAAAEMAAA="
 

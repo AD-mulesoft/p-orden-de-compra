@@ -14,14 +14,6 @@ Salesforce:
 
 errorEmailTo: "mulesoft@alercesdigital.com,lvera@volcan.cl,ext.rcasella@volcan.cl"
 
-#SalesforcePubSub:
-#  clientId: "![UnmsuFOVpcK2uINu/CHztcn57AdUB0cdlI/GMnd0WdreB6FfBEXJTzg9gIZxeo3lrmPNOiHI4jUcbvLECZLkH3i2jEXlDrAWfr7couBfPdeZ5rL0tu/MF5GB+LBSZoE6]"
-#  clientSecret: "![lib2eDNb77kRpz2gd2qJeduFE21cFp/JOJyVSKDuvFrRyePETzzqzPTuEq8cqyMGB18WBQbPCoqr5Dgii8dacchelOF/MiTX6OglTNdOzVY=]"
-#  username: "![RauNwcL99nRMoXgPni9OIM7H8wZlyUKfmdB0SgcMk1I=]"
-#  password: "![B3M72Cg9n4Zv5B4sxmbDKg==]"
-#  token: "FybkQkVIa5Z1EqwiCo6MJpi9c"
-#  tokenUrl: "https://volcan.my.salesforce.com/services/oauth2/token"
-
 SodimacXML:
   UNs: "AVSA,FIBR,VOLC"
   user_AVSA: "96848750-7|96966990-0"
