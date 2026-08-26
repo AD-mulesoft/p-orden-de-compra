@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_12daee37_38a3_42b3_b7ca_61169ed8755b_Output_Variables_productList = Any
+

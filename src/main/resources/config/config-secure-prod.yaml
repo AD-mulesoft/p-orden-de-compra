@@ -1,0 +1,72 @@
+Salesforce:
+  user: "integrador.salesforce@volcan.cl"
+  pass: "1nt3gr4c10n9NrbpIu5blFB6D06ZbQpFAV12"
+  clientId: "3MVG9xOCXq4ID1uEpciKJS9ESKN_dV5YiJcFBpO_r_0gV9Jfh07nefxOSN9k_A.0H4tlXK_5e66ZeVFYAv7Vd"
+  clientSecret: "4AA402B99F4189F60C580676CA3876E09E6B76E899A1D2A210C25E6BBBA5806D"
+  tokenUrl: "https://login.salesforce.com/services/oauth2/token"
+  datosFijos:
+    developerName: "VM_OrdenCompra"
+    pricebook2Id: "01so0000000FzWtAAK"
+    clienteNoEncontrado: "001PF00000UHbhpYAD"
+    productoNoEncontrado: "01tPF00000ApisTYAR"
+    pricebookEntryId: "01uPF000008ADYrYAO"
+    regionPorDefecto: "Metropolitana de Santiago"
+
+errorEmailTo: "mulesoft@alercesdigital.com,lvera@volcan.cl,ext.rcasella@volcan.cl"
+
+SodimacXML:
+  UNs: "AVSA,FIBR,VOLC"
+  user_AVSA: "96848750-7|96966990-0"
+  pass_AVSA: "B8D24FB8D047BDDD6B36644611CED170"
+  user_FIBR: "77524300-7|96966990-0"
+  pass_FIBR: "04370C176B6CA46B41E1A7186DA981FB"
+  user_VOLC: "90209000-2|96966990-0"
+  pass_VOLC: "3F2FB6A3258781BD561CF926F7AE296E"
+  wsSoapSec: "wWS3fymoLd9nmo5EP39+2w=="
+  rut_AVSA: "96848750-7"
+  rut_FIBR: "77524300-7"
+  rut_VOLC: "90209000-2"
+
+SodimacGCP:
+  privateKeyId: "e5d6b1e3a6e507e8c3daaade91280d6eae48b8fa"
+  clientId: "103295598726765143616"
+  clientEmail: "prch-provider-volcan@fal-corp-mrch-prchord-prod.iam.gserviceaccount.com"
+  privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDCtwIqaAi5fGbN\nrt6JPqQQmENFx1UcVijuT+DZfx2gc3vOajxAF1ivrrA1+B54/KXhbils3bk6/or9\nVLK2/jMYKW2cEtKPYHvK6mXqAqDFX3RhhlOMCZL6E2MBoUkot9cagvWI9h0Z+hRt\ntN0HQbc+YEhZHGMqu9UInCeUlQkvdTUBM3HkYXSx+uAB+ujxXu1WCmRGbwoYr0EZ\n7+KD6bcYSmGkQvp3pzjvlJ+nd9GYNHgSgEnrD/eePlVWp1/Bn9J4XJLsjgxMeHsB\nJlvdljIxAX8g1hcL0uOhp06/oHRMlLXUwwR/ootuFNRUwa/ba82qXXWM5rDMgWcV\nPt2AEMldAgMBAAECggEAWWv1lScQ9qpQhh5MeegoLazXnEimaCyTgJpzjz8nCoRu\ns8WrJN3z7z7BEw//Yp3YynYulR4gjpzOlPgcWRjVuz9vZLFqPMlZIL/UDQum7O3h\nA1bOsK3G740Ot3VsJUSEh1rkS0GH7OGiFx3sMgR2lLFgGHiGfF4lwF4CeWSWgtG6\ncSgp40XWlJFoYKNuqs8CvxDeLPy8CD86a0K/mjE2ivUapFLpHi4vWLtTCG9jB/2C\n3s21Wb+rIfYo68lTLfZ8evraQ9wD8BwendOfTcgPjermr+cUi7ahcBaFfCBrN8/F\nG7aN2MVitmgohIP0eq0jdXvVQtpN+kuUcSjHV7MPCwKBgQDhgdpCjNAV0PLPk4Ib\ncYu1XcmazLH6inQUjqmKbDwMyOomhmRPtUauYS5RodZHrb8DYShjtfCOtT75uFK0\nkQ0FV3U7D0Z2nF3bZdAE2QNVdRrqzyq/fgk0o4YpP8uFVrmktEbshfIIsQoH/+gp\njacQA6gCzVjNOZsEKNVcO2jX+wKBgQDdCz/C07cI+gNHuxsDG881LeFm83xIAPZR\nq+WdQ/ksK1LC5drpifxu7AZJOhG7uwA+jjxGlONaJb0G+pO9GsJaUsHHrsBJU7b2\n8ZQkIiYsdlZY9aCAf2yp/3yKHKS7pu+P4hGQSjGhp3XIi4DU4wEMnNxoDhYz3Mi8\n4cLZRKtshwKBgAmjVCG+BPK5wHbwtgHYQ4FX5dLw5rZvjnCGfGaHI7XkLGXDHqxt\ncfzn+GPSx+a+XUiWsXQ5hXOD+ZIQt7Ax9t2AlGkWyQsuubAz1MUwRT00yRa6Dfir\nOVd/ma9Po7IqN7r7XYCkZOjMMEKRRGnqPPapQVgFUMNMr/xohl3vyBZbAoGAQ3n5\nntnOWBkqAy2k01Ab8tnsoubVG43fo5Lb5yQm3krjWsecCgqrWpkGWjg1zZ8KNg5p\nbAprVMuMZqL7kpCmn7f/m5tG65t4kO2yEU2zZYNCXKmus0syurpZJDgWOYp+OugC\nAJAFkplyJSQg0dvyKA2CYulZ8b8GMFKijnyd7+UCgYEA1Yo6E+ItlLGb0NCJJDJd\nXFAQN6sCzet40daN7wWUJ7c78hGtJgWEoTCTPDbhn38Gyeo14ikYN+0c8Wmr9r2C\n0w+SEJDvRGS75WF6OTwRKbXQccjM0f5/9b+yGMSbAwfDWhq2/PhG0WPE7XJrjNX/\nrtTiGlw0m88axQXVyKIjZCg=\n-----END PRIVATE KEY-----\n"
+  projectId: "fal-corp-mrch-prchord-prod"
+  subscriptionName: "prch-provider-volcan"
+  status: "1,4,5,20"
+
+IDP:
+  host: "idp-rt.us-east-1.anypoint.mulesoft.com"
+  port: "443"
+  basePath: "/"
+  protocol: "HTTPS"
+  timeout: "30000"
+  clientId: "![K5n3GTBb6ogx/fqVQ0Ky8j+ribGmh/++SXCE4qsJlUR0d6d5E2qTuYQ/BqJuhRD7]"
+  clientSecret: "![ZktWZcpDb3bWRgI7ET8bhbBFbWYgaRIR2dUG2+tKEujzY7q4X+hhzpcNIclxoVKe]"
+  tokenUrl: "https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
+
+Outlook:
+  baseUrl: "https://graph.microsoft.com/v1.0"
+  clientId: "![aRHFKd8J1tSahwNJda6v7EPrhyE/WLlzf+mR9ea1mHJqdb70ENlbg02xwQdM72p0]"
+  clientSecret: "![wKVC4tN5bJH0rpnm2TpKX2WZjVoMSJGFDM3Dy6oDcykn05ZrGGbNAdfZPDjGnZid]"
+  tokenUrl: "https://login.microsoftonline.com/70d6839a-fa81-48e1-991e-1302e0329802/oauth2/v2.0/token"
+  scopes: "https://graph.microsoft.com/.default"
+  userId: "![hHSNJV9B/nP6oZ+Y6EaXLsm1vW0tHfMNo6Z0mIKrhoTHXO4F3QmxjbL9S7vEiFtB]"
+  mailFolderId: "AQMkAGU4MDk3OGIwLTMxZDUtNGJmOC1iMGZkLWMxYTUzYTYwNWNhMwAuAAADJNXPnPaHf0mm3cIcETpv5gEAUaC0IXEBb0KsiZY53F0v7gAAAgEMAAAA"
+#ordenes_compras@volcan.cl
+
+SAP:
+  username: "![hCDL0CaIaNxtlIObhjcbag==]"
+  password: "![Wu51dtTOtfr+RWgfmp3LQjISidd8WEh7zJ2dH7EG8tQ=]"
+  systemNumber: "00"
+  clientId: "400"
+  host: "172.16.88.35"
+  bapiName: "ZMF_B2B_BRF"
+
+MySQL:
+  host: "172.16.90.55"
+  port: "3306"
+  username: "usermatrizprecios"
+  password: ".Us3rm4trizprec10s."
+  db: "matriz_precios"

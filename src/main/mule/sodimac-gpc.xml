@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:pubsub="http://www.mulesoft.org/schema/mule/pubsub"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/pubsub http://www.mulesoft.org/schema/mule/pubsub/current/mule-pubsub.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="Sodimac-OC-GPC" doc:id="eafeb0df-72cd-454a-a194-a6434145c4f3" maxConcurrency="1" >
+		<pubsub:message-listener doc:name="On message listener" doc:id="4201d77a-1546-4d44-8eb5-ed05f0172e44" config-ref="Google_Pub_Sub_Configuration" projectId="${secure::SodimacGCP.projectId}" subscriptionName="${secure::SodimacGCP.subscriptionName}" acknowledgmentMode="MANUAL"/>
+		<logger level="INFO" doc:name="START" doc:id="a0333abf-09e9-4007-b903-3ebe704b22d8" message="START"/>
+		<logger level="DEBUG" doc:name="attributes" doc:id="1eef8671-be6c-499e-8282-9643c5d70821" message="#[%dw 2.0&#10;output application/json&#10;---&#10;message.attributes]"/>
+		<logger level="DEBUG" doc:name="payload" doc:id="5feeb0ce-ffc0-4662-87b8-62f96018c4d1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+		<ee:transform doc:name="Init vars" doc:id="67fb7a4e-565c-4ff7-ba8d-e47f06718e48" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="oc" ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload,"application/json")]]></ee:set-variable>
+				<ee:set-variable variableName="ackId" ><![CDATA[%dw 2.0
+output application/json
+---
+message.attributes.ackId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="OC" doc:id="7843dda8-fa93-45db-8610-84573f1b4ba8" message='#["OC " ++ vars.oc.backOrder.originalOrderNumber]' />
+		<try doc:name="Try" doc:id="8cfd09ee-d160-4f63-9be2-73df3fe14c45" >
+			<ee:transform doc:name="Format SF" doc:id="b1262ab3-c844-4b4b-a785-c61a60dc36fa" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="ocToSf" ><![CDATA[%dw 2.0
+output application/json
+
+fun trunc130 (value) = if((!isEmpty(value)) and (sizeOf(value) > 130000)) value[0 to 130000] else value
+---
+[{
+	"Name": "Mulesoft - Lectura GPC Sodimac",
+	"Url_servicio__c": "fal-corp-mrch-prchord-prod - prch-provider-volcan",
+	"ExternalID__c": "Sodimac-GCP-" ++ vars.oc.backOrder.originalOrderNumber,
+    "Error_Message__c": "200",
+    "RespuestaServicio__c": trunc130(payload),
+    "PeticionServicio__c": "Sodimac-GCP-" ++ vars.oc.backOrder.originalOrderNumber
+}]]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<logger level="DEBUG" doc:name="ocToSf" doc:id="46fa918d-0ea5-47ab-9772-501c65dc4be3" message="#[vars.ocToSf]" />
+			<salesforce:create type="Log__c" doc:name="Create" doc:id="aa6448d9-00b0-4600-9794-c51663ca4244" config-ref="Salesforce_Config" >
+				<salesforce:records ><![CDATA[#[vars.ocToSf]]]></salesforce:records>
+			</salesforce:create>
+			<logger level="DEBUG" doc:name="Response payload" doc:id="84280ee9-abf5-466c-b3bf-95bf20a21f3c" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+			<pubsub:acknowledge-message doc:name="Acknowledge Message" doc:id="6ec13499-5e9e-47f7-91ac-f04517343179" ackId="#[vars.ackId]" config-ref="Google_Pub_Sub_Configuration">
+				<reconnect frequency="5000" count="3" />
+			</pubsub:acknowledge-message>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="72edf4a6-2750-4a30-958c-7b2a83516b74" >
+					<logger level="INFO" doc:name="Error" doc:id="6b28d945-3213-40cc-8f99-548f256d6af8" message="Error in XML to SF" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<choice doc:name="Choice" doc:id="73cc117e-8298-45fc-947e-eeb52cc1ce35" >
+			<when expression='#[((vars.oc.purchaseOrderInfo.statusId as String) == "1") and (vars.oc.purchaseOrderInfo."type" != "Compra Directa")]'>
+				<ee:transform doc:name="sfOrderId" doc:id="b7c84ac4-ab38-49b9-af0b-39e2a312afec">
+					<ee:message>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="sfOrderId" ><![CDATA[%dw 2.0
+output application/json
+---
+"SELECT Id FROM Order WHERE VM_NumeroOC__c = '" ++ (vars.oc.backOrder.originalOrderNumber default "XXXXXXX") ++ "' AND Account.Cod_Cliente__c = '0005000463' AND IsDeleted = false"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="sfOrderId" doc:id="79c9ff28-78bf-4354-b57b-62a5125f7f20" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfOrderId]" />
+				<salesforce:query-all doc:name="Query all" doc:id="1527e81e-f82e-4569-aec3-63d848c3d5d1" config-ref="Salesforce_Config" target="sfOrderId">
+					<salesforce:salesforce-query><![CDATA[#[vars.sfOrderId]]]></salesforce:salesforce-query>
+				</salesforce:query-all>
+				<logger level="INFO" doc:name="sfOrderId" doc:id="f0adf554-a3d7-4245-bb68-8184b499fba0" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.sfOrderId]" />
+				<choice doc:name="Choice" doc:id="104e8ce8-c3a5-4cec-af12-c5a511c490f8">
+					<when expression="#[isEmpty(vars.sfOrderId)]">
+						<logger level="INFO" doc:name="NUEVO" doc:id="8d92eb28-ca24-4a4b-95a3-babe3f990da5" message="NUEVA OC" />
+						<logger level="INFO" doc:name="Send to SF" doc:id="d9725dc9-3368-4d6a-9cf0-2dc4087b8a88" message="Send to SF" />
+						<ee:transform doc:name="Format OC SF" doc:id="1b96e6ba-1ae5-4978-9671-d491001a43e6">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="orderResponseIDP"><![CDATA[%dw 2.0
+import leftPad from dw::core::Strings
+output application/json
+
+var CFV = ["Rep Tienda Multiple Despachos","Rep Tienda Acepta un Despacho","Rep Central Volumen","Compra Directa"]
+var RET = ["Compra contra Pedido","Cross Docking"]
+var LO = ["Rep Tienda Multiple Despachos","Rep Tienda Acepta un Despacho","Rep Central Volumen","Compra contra Pedido","Compra Directa"]
+var XD = ["Cross Docking"]
+var body = vars.oc.products
+---
+{
+    "esOrden": true,
+    "numeroOrden": vars.oc.backOrder.originalOrderNumber default "",
+    "fecha": vars.oc.purchaseOrderInfo.creationDate default "",
+    "rutVolcan": vars.oc.vendor.taxIdNumber default "",
+    "nombreVolcan": vars.oc.vendor.vendorName default "",
+    "rutSolicitante": "96792430-K",
+    "nombreSolicitante": "Sodimac S.A.",
+//    "direccionDespachar": (vars.eOD filter ($.items[0].NRO_OC == body[0].NRO_OC))[0].items[0].DIREC_L_ENTREGA,
+    "canal": "10",
+    "incoterms1": if(CFV contains vars.oc.purchaseOrderInfo."type") "CFV" else if(RET contains vars.oc.purchaseOrderInfo."type") "RET" else "N/A",
+    "condicionPago": ("C" ++ leftPad(vars.oc.paymentTerms.days as String, 3, "0")) default "",
+//    "nombreDestinatario": (vars.oc.purchaseOrderInfo.costCenterName splitBy " ")[0 to 1] joinBy "-",
+    "nombreDestinatario": leftPad((vars.oc.purchaseOrderInfo.costCenter as String),2,"0"),
+    "tipoOC": if(LO contains vars.oc.purchaseOrderInfo."type") "LO" else if(XD contains vars.oc.purchaseOrderInfo."type") "XD" else "N/A",
+    "fechaValidoDe": if(vars.oc.purchaseOrderInfo.costCenter as String == "257") (vars.oc.purchaseOrderInfo.creationDate default "") else (vars.oc.purchaseOrderInfo.eta default ""),
+    "fechaValidezA": if(vars.oc.purchaseOrderInfo.costCenter as String == "257") (vars.oc.purchaseOrderInfo.eta default "") else (vars.oc.purchaseOrderInfo.lrd default ""),
+    "items": body map (item,index) -> {
+        "cantidad": item.allocations[0].purchasedUnits as String default "",
+        "unidad": item.logisticVariable.measurementUnit default "",
+        "codigo": item.sku default "",
+        "descripcion": item.description default "",
+        "precioUnitario": item.catalogCost as String default "",
+        "precioTotal": ((item.catalogCost as Number) * (item.allocations[0].purchasedUnits as Number)) as String default ""
+    },
+    "conversationId": "",
+    "source": "GCP",
+    "subject": "",
+    "fileName": ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+						<logger level="DEBUG" doc:name="orderResponseIDP" doc:id="7d615d56-aab0-43de-ad27-2208852c17a5" message="#[vars.orderResponseIDP]" />
+						<flow-ref doc:name="create-order-in-salesforce" doc:id="d30e18d2-f66f-4351-9bec-4511b5cc00e5" name="create-order-in-salesforce" />
+					</when>
+					<otherwise >
+						<logger level="INFO" doc:name="EXISTE" doc:id="b2fe6347-8bd9-4c10-b2ff-19ca7859542b" message="EXISTE OC" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Invalid status" doc:id="9a22c788-0340-422a-a834-3c3a9c49db22" message='#["Invalid status: " ++ (vars.oc.purchaseOrderInfo.statusId as String) ++ " - or Type: " ++ (vars.oc.purchaseOrderInfo."type" as String)]' />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="END" doc:id="39523a32-591f-4414-a267-96c6535ce498" message="END"/>
+	</flow>
+	<!-- [STUDIO:"sodimac-gpcFlow"]<flow name="sodimac-gpcFlow" doc:id="ff3cb6c0-8445-4f55-a0d8-c6f01d5c41ba" >
+		<scheduler doc:name="Scheduler" doc:id="95f4c6ba-4f18-48fb-b18d-2d18ce72487b" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" startDelay="1" timeUnit="DAYS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Format OC SF" doc:id="c5b7d19b-130c-4c09-b2d6-931a6ad9c849" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="orderResponseIDP" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  "esOrden": true,
+  "numeroOrden": "17422050",
+  "fecha": "2026-07-29",
+  "rutVolcan": "77524300-7",
+  "nombreVolcan": "FIBROCEMENTOS VOLCAN LTDA",
+  "rutSolicitante": "96792430-K",
+  "nombreSolicitante": "Sodimac S.A.",
+  "canal": "10",
+  "incoterms1": "CFV",
+  "condicionPago": "100CH060FEF",
+  "nombreDestinatario": "97",
+  "tipoOC": "LO",
+  "fechaValidoDe": "2026-07-29",
+  "fechaValidezA": "2026-07-29",
+  "items": [
+    {
+      "cantidad": "100",
+      "unidad": "PLS",
+      "codigo": "2490978",
+      "descripcion": "PLANCHA FIBRO LISA 4MM 1,2X2,4",
+      "precioUnitario": "6718",
+      "precioTotal": "671800"
+    },
+    {
+      "cantidad": "70",
+      "unidad": "PLS",
+      "codigo": "2490994",
+      "descripcion": "PLANCHA FIBRO LISA 6MM 1,2X2,4",
+      "precioUnitario": "12695",
+      "precioTotal": "888650"
+    },
+    {
+      "cantidad": "20",
+      "unidad": "C/U",
+      "codigo": "7351984",
+      "descripcion": "PERFIL ESQUIN EXT 0,5MM 12X250",
+      "precioUnitario": "4155",
+      "precioTotal": "83100"
+    },
+    {
+      "cantidad": "20",
+      "unidad": "C/U",
+      "codigo": "7351992",
+      "descripcion": "CORTA GOTE VENT 110X2500X0,5MM",
+      "precioUnitario": "4155",
+      "precioTotal": "83100"
+    },
+    {
+      "cantidad": "70",
+      "unidad": "PLS",
+      "codigo": "249101X",
+      "descripcion": "PLANCHA FIBRO CER  6MM 1,2X2,4",
+      "precioUnitario": "14318",
+      "precioTotal": "1002260"
+    }
+  &#93;,
+  "conversationId": "",
+  "source": "GCP",
+  "subject": "",
+  "fileName": ""
+}&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="PROD" doc:id="41350b34-df63-41de-8e99-8322992f406a">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="orderResponseIDP"><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  "esOrden": true,
+  "numeroOrden": "95334966",
+  "fecha": "29-07-2026",
+  "rutVolcan": "90209000-2",
+  "nombreVolcan": "CIA INDUSTRIAL EL VOLCAN S.A.",
+  "rutSolicitante": "96692790-9",
+  "nombreSolicitante": "MATERIALES Y SOLUCIONES S.A.",
+  "direccionDespachar": "ORTUZAR 1421",
+  "canal": "20",
+  "incoterms1": "CFV",
+  "condicionPago": "60",
+  "nombreDestinatario": "\"FERRETERIA OVIEDO S.A.\"",
+  "fechaValidez": "0",
+  "items": [
+    {
+      "cantidad": 604.8,
+      "unidad": "M2",
+      "codigo": "5000313",
+      "descripcion": "VOLCANITA ST BR 10 X 1.2 X 2.4",
+      "precioUnitario": 1650,
+      "precioTotal": 852587
+    }
+  &#93;,
+  "conversationId": "AAQkAGU4MDk3OGIwLTMxZDUtNGJmOC1iMGZkLWMxYTUzYTYwNWNhMwAQAIyrJFZ3CLBEvtFnCpdNB4k=",
+  "source": "Correo",
+  "subject": "OC MTS - 95334966",
+  "fileName": "95334966.pdf"
+}&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="create-order-in-salesforce" doc:id="4d9ce630-cf12-49f7-8804-8524e174b221" name="create-order-in-salesforce" />
+	</flow> [STUDIO] -->
+</mule>

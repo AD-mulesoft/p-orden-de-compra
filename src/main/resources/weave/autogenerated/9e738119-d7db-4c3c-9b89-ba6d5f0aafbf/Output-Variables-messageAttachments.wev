@@ -1,0 +1,22 @@
+%dw 2.0
+
+type auto_9e738119_d7db_4c3c_9b89_ba6d5f0aafbf_Output_Variables_messageAttachments = Array<org_mule_runtime_api_message_Message {"typeId": "org.mule.runtime.api.message.Message"}>
+type org_mule_runtime_api_message_Message = {|
+  payload: com_mulesoft_connector_outlook365_internal_metadata_schema_AttachmentSchemaContent {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.schema.AttachmentSchemaContent",
+  "class": "com.mulesoft.connector.outlook365.internal.metadata.schema.AttachmentSchemaContent"}, 
+  attributes: Null
+|} {"typeId": "org.mule.runtime.api.message.Message"}
+type com_mulesoft_connector_outlook365_internal_metadata_schema_AttachmentSchemaContent = {|
+  contentType?: String, 
+  id?: String, 
+  isInline?: Boolean {"typeId": "java.lang.Boolean"}, 
+  lastModifiedDateTime?: String, 
+  name?: String, 
+  size?: Number
+|} {"typeId": "com.mulesoft.connector.outlook365.internal.metadata.schema.AttachmentSchemaContent",
+"class": "com.mulesoft.connector.outlook365.internal.metadata.schema.AttachmentSchemaContent"}
+
+
+
+
+

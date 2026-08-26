@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_d4f8f130_d453_4eba_a5e2_67bbd09bfa93_Output_Variables_attachments = Array<{|  name: String | Null,   contentType: String | Null,   contentBytes: Null|}>
+

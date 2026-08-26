@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:outlook365="http://www.mulesoft.org/schema/mule/outlook365" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/outlook365 http://www.mulesoft.org/schema/mule/outlook365/current/mule-outlook365.xsd">
+	<error-handler name="error-handler" doc:id="c2e7fc32-15a8-4bce-a02c-c5ca41e4c29c" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b5be9bf2-5aa9-4aa9-b261-3a0fc7fefd30" type="SALESFORCE:CONNECTIVITY">
+			<ee:transform doc:name="Transform Message" doc:id="2646edfb-cb44-4c72-8879-f4081721d373" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"emailId": vars.message.id default null,
+	"error": error.errorType default "CONNECTIVITY",
+	"detail": error.description,
+	"timestamp": now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="ERROR" doc:name="Logger" doc:id="16dbdfd8-4edd-4c85-afd9-43d6383fd461" message="#[payload]" category="error-handler"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0aa2ca81-d533-404e-ad70-7fcfef6e0b7f" type="SALESFORCE:TIMEOUT">
+			<ee:transform doc:name="Transform Message" doc:id="ce5f27ee-fc5d-4f73-8446-e749af47f493" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"emailId": vars.message.id default null,
+	"error": error.errorType default "TIMEOUT",
+	"detail": error.description,
+	"timestamp": now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="ERROR" doc:name="Logger" doc:id="76d45791-8e00-48cc-9e37-5d6b4ae4d6f6" message="#[payload]" category="error-handler" />
+		</on-error-propagate>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="543eaa0c-ceb8-4c7a-a7bf-48cdc04cab34" type="SF:CREATION_ERROR">
+			<ee:transform doc:name="Transform Message" doc:id="83bb357c-162d-44a0-96ad-005fcf82602b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"emailId": vars.message.id default null,
+	"emailSubject": vars.subject,
+	"nombrePdf": vars.attachment.name default null,
+	"orderId": vars.orderCreated.items[0].id default null,
+	"error": error.errorType default "CREATION_ERROR",
+	"detail": error.description,
+	"timestamp": now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="ERROR" doc:name="Logger" doc:id="5b94427a-2ae4-4868-a6fe-3d8c13e76d87" message="#[payload]" category="error-handler" />
+			<ee:transform doc:name="Transform Message" doc:id="574224b5-ac7d-4522-af2a-d83c57546fa6" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "message": {
+    "subject": "MULESOFT: SALESFORCE_CREATION_ERROR",
+    "body": {
+      "contentType": "Text",
+      "content": write(payload, "application/json")
+    },
+    "toRecipients": (p('secure::errorEmailTo') splitBy  (",")) map (item,index) -> {
+        "emailAddress": {
+            "address": item
+        }
+    }
+  },
+  "saveToSentItems": "false"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<outlook365:send-mail userId="${secure::Outlook.userId}" doc:name="Send mail" doc:id="cc031c28-56bb-4d55-b095-55eb4a84cc7e" config-ref="Outlook365_Outlook365_Config" >
+				<outlook365:message ><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></outlook365:message>
+			</outlook365:send-mail>
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fdd9d928-7170-4a0b-ae54-beb63e5df7a9" type="SAP:CONNECTIVITY">
+			<ee:transform doc:name="Transform Message" doc:id="cb3de5d7-1e4e-4e99-9fd2-8452c064b117" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": error.errorType default "CONNECTIVITY",
+	"detail": error.description,
+	"timestamp": now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="ERROR" doc:name="Logger" doc:id="63aa7ac6-640f-4d6f-a27c-6ad7066521d1" message="#[payload]" category="error-handler" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f9c3ed6c-a0e3-43c5-9631-518e7b8b9c18" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="e40a2114-c635-4c58-a729-05dac4cc5998">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"emailId": vars.message.id default null,
+	"orderId": vars.orderCreated.items[0].id default null,
+	"error": error.errorType default "INTERNAL ERROR",
+	"detail": error.description,
+	"timestamp": now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="ERROR" doc:name="Logger" doc:id="9a591700-dcb0-4961-9f20-3f82eb1a0b4d" message="#[payload]" category="error-handler" />
+		</on-error-propagate>
+	</error-handler>
+</mule>

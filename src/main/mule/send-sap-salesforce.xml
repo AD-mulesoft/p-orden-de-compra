@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce-pub-sub="http://www.mulesoft.org/schema/mule/salesforce-pub-sub"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/salesforce-pub-sub http://www.mulesoft.org/schema/mule/salesforce-pub-sub/current/mule-salesforce-pub-sub.xsd">
+	<flow name="upload-sap" doc:id="769e7a2c-b02c-45b8-a62c-8d44ef6da87b" maxConcurrency="1">
+		<salesforce-pub-sub:subscribe-channel-listener doc:name="Subscribe channel listener" doc:id="091e862d-774d-434c-affb-5489959ef188" channelName="/event/VM_Orden_de_compra_Volcan__e" config-ref="Salesforce_PubSub_Config">
+			<salesforce-pub-sub:replay-option >
+				<salesforce-pub-sub:latest />
+			</salesforce-pub-sub:replay-option>
+		</salesforce-pub-sub:subscribe-channel-listener>
+		<set-variable value="#[now()]" doc:name="startTime" doc:id="807ffdb4-8468-4e1e-8121-703dfb46cc87" variableName="startTime" />
+		<logger level="INFO" doc:name="START" doc:id="53de4a99-e07c-48d9-a995-486fe2da534a" message="#['STARTING SALESFORCE EVENT\n-------']#['\nFlow: ']#[flow.name]#['\nRequest: ']#[ (attributes.requestUri default &quot;&quot;)]#['\nMessage Id: ']#[(correlationId default &quot;&quot;)]#['\nOrder Id: ']#[(payload.event.Id__c default &quot;&quot;)]"/>
+		<logger level="INFO" doc:name="Id__c" doc:id="75613085-f82d-4fdd-962a-c2d2830bee3b" message='#["Received: " ++ payload.event.Id__c]'/>
+		<set-variable value="#[payload.event.Id__c]" doc:name="Set Id Order" doc:id="10861258-68fa-43bf-8540-66abc0c4acdf" variableName="idOrder"/>
+		<salesforce:query doc:name="Order" doc:id="e46f1325-2e41-48fd-943b-b55d6ea06f60" config-ref="Salesforce_Config" target="respSF">
+			<salesforce:salesforce-query ><![CDATA[SELECT fields(all) FROM Order WHERE Id = ':id' LIMIT 200]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.idOrder
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="sizeOf(vars.respSF)" doc:id="e370d982-83b2-42e0-b9cf-6edcd668dbba" message='#["Retrieved " ++ sizeOf(vars.respSF) ++ " Order"]'/>
+		<salesforce:query doc:name="Order Item" doc:id="edac5e2d-9374-4f02-ab99-81c30a94d7bb" config-ref="Salesforce_Config" target="respItem">
+			<salesforce:salesforce-query ><![CDATA[SELECT fields(all) FROM OrderItem WHERE OrderId = ':id' LIMIT 200]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.idOrder
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="sizeOf(vars.respItem)" doc:id="05406f9b-e8ca-4efd-a6c3-e8e015ef6311" message='#["Retrieved " ++ sizeOf(vars.respItem) ++ " Order Item"]' />
+		<set-variable value="#[[]]" doc:name="Set Variable" doc:id="84416e74-0881-44fb-bc38-f1a0eda230d9" variableName="aux"/>
+		<foreach doc:name="For Each" doc:id="5f1e36a0-7974-4721-9051-3560750503c8" collection="#[vars.respItem]">
+			<logger level="INFO" doc:name="Product2Id" doc:id="8bc21415-73f4-48e7-abed-da8114c458f5" message='#["Looking for Product2 - Product2Id = " ++ payload.Product2Id]'/>
+			<salesforce:query doc:name="Query" doc:id="1caa42ae-25b5-4309-91f2-79105a0b6e63" config-ref="Salesforce_Config" target="codigoProducto">
+				<salesforce:salesforce-query ><![CDATA[select Id,ProductCode From Product2 where id=':codProd']]></salesforce:salesforce-query>
+				<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"codProd" : payload.Product2Id
+}]]]></salesforce:parameters>
+			</salesforce:query>
+			<logger level="INFO" doc:name="codigoProducto" doc:id="693270cc-4033-448b-b9db-214cb637cd16" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.codigoProducto]"/>
+			<ee:transform doc:name="Transform Message" doc:id="578c0fb3-4e62-467f-b891-7451845b7d49" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload update{
+	case .Product2Id -> vars.codigoProducto[0].ProductCode
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="48f38b24-c539-41ac-adae-ed96b05a2ed5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="aux" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.aux << payload]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<ee:transform doc:name="Body" doc:id="30947d23-c32f-4f26-b263-ff69023dd378" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="body" ><![CDATA[%dw 2.0
+import * from dw::core::Dates
+output application/xml
+var order = vars.respSF[0]
+fun padLeft(str: String, length: Number): String =
+    if (sizeOf(str) >= length) str
+    else padLeft("0" ++ str, length)
+---
+{
+	(p('secure::SAP.bapiName')):{
+		"import":{
+			I_HEADER_CON:{
+				DOC_TYPE: order.VM_ClasePedido__c,
+				SALES_ORG: order.VM_OrganizacionVentas__c,
+				DISTR_CHAN: order.VM_Canal__c,
+            	DIVISION: order.VM_Sector__c,
+            	PURCH_DATE: (order.VM_FechaPedido__c as String {format: "dd-MM-yyyy"} as Date),
+            	INCOTERMS1: order.VM_Incoterm1__c,
+            	INCOTERMS2: order.VM_Incoterm2__c,
+            	PMNTTRMS: order.VM_CondicionPago__c,
+            	CT_VALID_F: (order.VM_ValidoDe__c as String {format: "dd-MM-yyyy"} as Date),
+            	CT_VALID_T: (order.VM_ValidezA__c as String {format: "dd-MM-yyyy"} as Date),
+            	PURCH_NO_C: order.VM_NumeroOC__c, //837583784,121SDFF
+            	PARTN_ROLE_1: order.VM_TipoInterloculorDestinatario__c default "",
+            	PARTN_NUMB_1: if(!isEmpty(order.VM_CodigoDestinatario__c)) (order.VM_CodigoDestinatario__c as Number as String {format: "0000000000"}) else "", //5084150,5080337
+            	PARTN_ROLE_2: order.VM_TipoInterloculorSolicitante__c default "",
+            	PARTN_NUMB_2: if(!isEmpty(order.VM_CodigoSolicitante__c)) (order.VM_CodigoSolicitante__c as Number as String {format: "0000000000"}) else "", //5000463,0005000463
+            	PARTN_ROLE_3: order.VM_TipoInterlocutorCuenta__c default "",
+            	PARTN_NUMB_3: if(!isEmpty(order.VM_Account_Cod_Cliente__c)) (order.VM_Account_Cod_Cliente__c as Number as String {format: "0000000000"}) else "", //5000463,0005000463,
+            	PARTN_ROLE_4: order.VM_TipoInterlocutorTiendaObra__c default "",
+            	PARTN_NUMB_4: if(!isEmpty(order.VM_Tienda_Obra_Cod_Cliente__c)) (order.VM_Tienda_Obra_Cod_Cliente__c as Number as String {format: "0000000000"}) else "", //5000463,0005000463,
+            	PP_SEARCH: order.VM_CalculoFlete__c,
+			},
+			ZTEXTO1: order.VM_Observaciones__c default "",
+			ZCREADOR: order.VM_Codigo_SAP_Usuario__c as String,
+			(I_NO_OR: "X") if !((order.VM_Canal__c == "10" and (order.VM_CodigoSolicitante__c == "0005000463" or order.VM_CodigoSolicitante__c == "0005000460" or order.VM_CodigoSolicitante__c == "0005000462")) or (order.VM_Canal__c == "20" and order.VM_CodigoSolicitante__c == "0005000461"))
+		},
+		"tables":{
+			TI_CON: vars.aux reduce ((item, accumulator={}) -> accumulator ++ row: {
+                    ITM_NUMBER: item.VM_Item__c,
+                    MATERIAL: padLeft(item.Product2Id as String,18),
+                    PLANT: item.VM_Centro__c,
+                    TARGET_QTY: (((item.Quantity as Number) as String {format: "0.00"}) replace "," with ".") as Number,
+                    TARGET_QU: item.VM_UnidadMedida__c,
+                    SHIP_POINT: item.VM_PuestoExpedicion__c,
+                    COND_TYPE:item.VM_TipoCondicion__c,
+                    COND_VALUE: (((item.UnitPrice as Number) as String {format: "0.00"}) replace "," with ".") as Number,
+                    CURRENCY: order.CurrencyIsoCode,
+                    COND_UNIT: item.VM_UMCondicion__c,
+                    COND_P_UNT: item.VM_UMPrecio__c
+                })
+		}
+		}
+	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="body" doc:id="00a11b43-97eb-482c-92c5-d4d569cadfe4" message="#[vars.body]"/>
+		<logger level="INFO" doc:name="Sending to SAP" doc:id="70f071e7-531a-49ef-b095-f0f01f772d44" message="Sending to SAP"/>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="57dc2beb-9895-4f97-983d-ad71f258326c" millisBetweenRetries="5000">
+			<sap:synchronous-remote-function-call doc:name="Synchronous Remote Function Call" doc:id="5cae7308-4799-4197-a73c-3a88def0a5be" config-ref="SAP_Config" key="${secure::SAP.bapiName}">
+			<sap:content><![CDATA[#[vars.body]]]></sap:content>
+		</sap:synchronous-remote-function-call>
+		</until-successful>
+		<ee:transform doc:name="JSON" doc:id="0dfccf5a-7c0e-4359-bf88-2c78b27cd409" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="payload" doc:id="ad4d3fe8-5ace-4713-9787-9f44a76f02d1" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="30a56cc8-43a5-4bd9-b803-fb6c80b7957b" >
+			<when expression='#[payload.ZMF_B2B_BRF.export.SALESDOCUMENT != null and payload.ZMF_B2B_BRF.export.SALESDOCUMENT != ""]'>
+				<ee:transform doc:name="Transform Message" doc:id="1a6dd5ce-6877-4ac5-b45d-71d7e1b9f68a" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="updateSF" ><![CDATA[%dw 2.0
+output application/json
+---
+[{
+	"Id": vars.idOrder,
+	"Status": "Ingresada",
+	"N_Contrato_SAP__c": payload.ZMF_B2B_BRF.export.SALESDOCUMENT,
+	"VM_CodigoRespuestaSAP__c": "0",
+	"VM_DescripcionRespuestaSAP__c": "Exitoso"
+}]]]></ee:set-variable>
+						<ee:set-variable variableName="errorMsg" ><![CDATA[%dw 2.0
+output application/json
+---
+"0"]]></ee:set-variable>
+					</ee:variables>
+				
+</ee:transform>
+				<logger level="INFO" doc:name="updateSF" doc:id="fc249969-7e2a-4e6d-9ad4-3f9ede3566f8" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.updateSF]"/>
+				<salesforce:update doc:name="Order" doc:id="b99d5423-99e5-47b4-ae09-88e767772ab9" config-ref="Salesforce_Config" type="Order">
+					<salesforce:records ><![CDATA[#[vars.updateSF]]]></salesforce:records>
+				</salesforce:update>
+				<logger level="INFO" doc:name="payload" doc:id="a7b64445-9275-406d-8fa5-2f26cb2bf063" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+			
+</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="5f59429f-1c30-4042-b056-04839c864eb8" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="updateSF" ><![CDATA[%dw 2.0
+output application/json
+var respMap = (payload.ZMF_B2B_BRF.tables.TI_RETURN  filterObject ((value, key, index) -> value.TYPE == "E" and (value.ID == "V1" or value.ID == "ZMM" or value.ID == "ZSD" or value.ID == "VP"))).*row map (v,i) ->
+{
+    "NUMBER": v.NUMBER,
+    "MESSAGE": v.MESSAGE
+}
+---
+[{
+	"Id": vars.idOrder,
+	"VM_CodigoRespuestaSAP__c": respMap.*NUMBER joinBy "-",
+    "VM_DescripcionRespuestaSAP__c": respMap.*MESSAGE joinBy "//" default "Error en procesamiento, consultar con administrador"
+}]]]></ee:set-variable>
+						<ee:set-variable variableName="errorMsg" ><![CDATA[%dw 2.0
+output application/json
+var respMap = (payload.ZMF_B2B_BRF.tables.TI_RETURN  filterObject ((value, key, index) -> value.TYPE == "E" and (value.ID == "V1" or value.ID == "ZMM" or value.ID == "ZSD" or value.ID == "VP"))).*row map (v,i) ->
+{
+    "NUMBER": v.NUMBER,
+    "MESSAGE": v.MESSAGE
+}
+---
+respMap.*NUMBER joinBy "-"]]></ee:set-variable>
+					</ee:variables>
+				
+</ee:transform>
+				<logger level="INFO" doc:name="updateSF" doc:id="452e3eea-a77a-416d-8577-cd5621bfbf25" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.updateSF]" />
+				<salesforce:update doc:name="Order" doc:id="57cbb730-f384-4d8e-857d-cda6d5d13c77" config-ref="Salesforce_Config" type="Order">
+					<salesforce:records ><![CDATA[#[vars.updateSF]]]></salesforce:records>
+				</salesforce:update>
+				<logger level="INFO" doc:name="payload" doc:id="cf57b056-61bd-4d35-b1e4-4f0d46c4c388" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+			
+</otherwise>
+		</choice>
+		<ee:transform doc:name="log__c" doc:id="fcc9a6fe-983e-406f-8279-3e9f376189e9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="log__c" ><![CDATA[%dw 2.0
+output application/json
+
+fun trunc130 (value) = if((!isEmpty(value)) and (sizeOf(value) > 130000)) value[0 to 130000] else value
+---
+[{
+	"Name": "Mulesoft - OC SF to SAP",
+	"Url_servicio__c": "ZMF_B2B_BRF",
+	"ExternalID__c": vars.idOrder,
+    "Error_Message__c": vars.errorMsg,
+    "RespuestaServicio__c": trunc130(write(vars.updateSF, "application/json")),
+    "PeticionServicio__c": trunc130(write(vars.body, "application/xml"))
+}]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="log__c" doc:id="b3bd4a23-0b17-41f6-8d7e-ede270cb9775" message="#[vars.log__c]" />
+		<salesforce:create type="Log__c" doc:name="Log__c" doc:id="edda2f32-9ebb-4011-a32c-441c29447ed1" config-ref="Salesforce_Config">
+			<salesforce:records><![CDATA[#[vars.log__c]]]></salesforce:records>
+		</salesforce:create>
+		<logger level="INFO" doc:name="END" doc:id="4bfd3030-ae69-4ba0-a6b2-e37d27ec296a" message="#['RESPONSE\n--------']#['\nFlow: ']#[flow.name]#['\nMessage Id: ']#[(correlationId default &quot;&quot;)]#['\nTime: ']#[(now() - vars.startTime) as Number {&quot;unit&quot; : &quot;milliseconds&quot;}]#['ms']"/>
+	
+</flow>
+</mule>

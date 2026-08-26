@@ -1,0 +1,12 @@
+%dw 2.0
+
+type auto_ce4d0d81_2a93_4448_b9eb_42d4f59265ec_Output_Variables_solicitante = Array<Account {"label": "Cuenta",
+"typeId": "Account"}>
+type Account = {|
+  Cod_Cliente__c?: String {"typeId": "Cod_Cliente__c"}, 
+  Id?: String {"typeId": "Id"}
+|} {"label": "Cuenta",
+"typeId": "Account"}
+
+
+

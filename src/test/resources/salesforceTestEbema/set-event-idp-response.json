@@ -1,0 +1,24 @@
+{
+  "esOrden": true,
+  "numeroOrden": "4600197968",
+  "fecha": "28-08-2025",
+  "rutVolcan": "0",
+  "nombreVolcan": "FIBROCEMENTOS VOLCAN LTDA.",
+  "rutSolicitante": "0",
+  "nombreSolicitante": "Ebema S.A.",
+  "direccionDespachar": "Galvarino 8501",
+  "canal": "20",
+  "incoterms1": "CFV",
+  "condicionPago": "30",
+  "nombreDestinatario": "Centro Logístico Santiago",
+  "items": [
+    {
+      "cantidad": 70,
+      "unidad": "Unidad",
+      "codigo": "602508",
+      "descripcion": " FIBRO 6MM 1,2X2,4M VOLCAN",
+      "precioUnitario": 9286,
+      "precioTotal": 650020
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "esOrden": true,
+  "numeroOrden": "6701285087",
+  "fecha": "11-08-2025",
+  "rutVolcan": "90209000-2",
+  "nombreVolcan": "CIA INDUSTRIAL EL VOLCAN S.A.",
+  "rutSolicitante": "76568660-1",
+  "nombreSolicitante": "EASY RETAIL S.A.",
+  "direccionDespachar": "los pensamientos 270 ",
+  "canal": "20",
+  "incoterms1": "CFV",
+  "condicionPago": "30",
+  "nombreDestinatario": "EBCO S.A.",
+  "items": [
+    {
+      "cantidad": 370,
+      "unidad": "UN",
+      "codigo": "118467",
+      "descripcion": "PLANCHA YESO CARTON RH 12.5X1200",
+      "precioUnitario": 7177,
+      "precioTotal": 2655490
+    },
+    {
+      "cantidad": 370,
+      "unidad": "UN",
+      "codigo": "938731",
+      "descripcion": "SERVICIO FLETE",
+      "precioUnitario": 410,
+      "precioTotal": 151700
+    }
+  ]
+}

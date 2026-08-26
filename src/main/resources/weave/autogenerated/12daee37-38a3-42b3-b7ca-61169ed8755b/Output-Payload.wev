@@ -1,0 +1,221 @@
+%dw 2.0
+
+type auto_12daee37_38a3_42b3_b7ca_61169ed8755b_Output_Payload = {|
+  id?: java_io_Serializable {"typeId": "java.io.Serializable",
+  "typeAlias": "Serializable"}, 
+  items?: Array<org_mule_runtime_api_bulk_BulkItem {"typeAlias": "BulkItem",
+  "typeId": "org.mule.runtime.api.bulk.BulkItem"}>, 
+  successful?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "BulkOperationResult",
+"typeId": "org.mule.runtime.api.bulk.BulkOperationResult"}
+type org_mule_runtime_api_bulk_BulkItem = {|
+  exception?: java_lang_Exception {"typeId": "java.lang.Exception",
+  "typeAlias": "Exception",
+  "class": "java.lang.Exception"}, 
+  id?: java_io_Serializable_38 {"typeId": "java.io.Serializable",
+  "typeAlias": "Serializable"}, 
+  message?: String, 
+  payload?: org_mule_extension_salesforce_api_core_Result {"typeAlias": "Result",
+  "class": "org.mule.extension.salesforce.api.core.Result",
+  "typeId": "org.mule.extension.salesforce.api.core.Result"}, 
+  statusCode?: String, 
+  successful?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "BulkItem",
+"typeId": "org.mule.runtime.api.bulk.BulkItem"}
+type org_mule_extension_salesforce_api_core_Result = {|
+  errors?: Array<org_mule_extension_salesforce_api_core_Error {"class": "org.mule.extension.salesforce.api.core.Error",
+  "typeAlias": "Error",
+  "typeId": "org.mule.extension.salesforce.api.core.Error"}>, 
+  id?: String, 
+  success?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "Result",
+"class": "org.mule.extension.salesforce.api.core.Result",
+"typeId": "org.mule.extension.salesforce.api.core.Result"}
+type org_mule_extension_salesforce_api_core_Error = {|
+  duplicateResult?: org_mule_extension_salesforce_api_core_DuplicateResult {"typeAlias": "DuplicateResult",
+  "class": "org.mule.extension.salesforce.api.core.DuplicateResult",
+  "typeId": "org.mule.extension.salesforce.api.core.DuplicateResult"}, 
+  fields?: Array<String>, 
+  message?: String, 
+  statusCode?: String
+|} {"class": "org.mule.extension.salesforce.api.core.Error",
+"typeAlias": "Error",
+"typeId": "org.mule.extension.salesforce.api.core.Error"}
+type org_mule_extension_salesforce_api_core_DuplicateResult = {|
+  allowSave?: Boolean {"typeId": "boolean"}, 
+  duplicateRule?: String, 
+  duplicateRuleEntityType?: String, 
+  errorMessage?: String, 
+  matchResults?: Array<org_mule_extension_salesforce_api_core_MatchResult {"typeId": "org.mule.extension.salesforce.api.core.MatchResult",
+  "typeAlias": "MatchResult",
+  "class": "org.mule.extension.salesforce.api.core.MatchResult"}>
+|} {"typeAlias": "DuplicateResult",
+"class": "org.mule.extension.salesforce.api.core.DuplicateResult",
+"typeId": "org.mule.extension.salesforce.api.core.DuplicateResult"}
+type org_mule_extension_salesforce_api_core_MatchResult = {|
+  entityType?: String, 
+  errors?: Array<org_mule_extension_salesforce_api_core_SimpleError {"class": "org.mule.extension.salesforce.api.core.SimpleError",
+  "typeAlias": "SimpleError",
+  "typeId": "org.mule.extension.salesforce.api.core.SimpleError"}>, 
+  matchEngine?: String, 
+  matchRecords?: Array<org_mule_extension_salesforce_api_utility_MatchRecord {"typeAlias": "MatchRecord",
+  "class": "org.mule.extension.salesforce.api.utility.MatchRecord",
+  "typeId": "org.mule.extension.salesforce.api.utility.MatchRecord"}>, 
+  rule?: String, 
+  size?: Number, 
+  success?: Boolean {"typeId": "boolean"}
+|} {"typeId": "org.mule.extension.salesforce.api.core.MatchResult",
+"typeAlias": "MatchResult",
+"class": "org.mule.extension.salesforce.api.core.MatchResult"}
+type org_mule_extension_salesforce_api_core_SimpleError = {|
+  fields?: Array<String>, 
+  message?: String, 
+  statusCode?: String
+|} {"class": "org.mule.extension.salesforce.api.core.SimpleError",
+"typeAlias": "SimpleError",
+"typeId": "org.mule.extension.salesforce.api.core.SimpleError"}
+
+
+type org_mule_extension_salesforce_api_utility_MatchRecord = {|
+  additionalInformation?: Array<org_mule_extension_salesforce_api_utility_AdditionalInformationMap {"typeAlias": "AdditionalInformationMap",
+  "typeId": "org.mule.extension.salesforce.api.utility.AdditionalInformationMap",
+  "class": "org.mule.extension.salesforce.api.utility.AdditionalInformationMap"}>, 
+  fieldDiffs?: Array<org_mule_extension_salesforce_api_utility_FieldDiff {"class": "org.mule.extension.salesforce.api.utility.FieldDiff",
+  "typeAlias": "FieldDiff",
+  "typeId": "org.mule.extension.salesforce.api.utility.FieldDiff"}>, 
+  matchConfidence?: Number, 
+  record?: { _?: java_lang_Object {"class": "java.lang.Object",
+    "typeAlias": "Object",
+    "typeId": "java.lang.Object"} }
+|} {"typeAlias": "MatchRecord",
+"class": "org.mule.extension.salesforce.api.utility.MatchRecord",
+"typeId": "org.mule.extension.salesforce.api.utility.MatchRecord"}
+type org_mule_extension_salesforce_api_utility_FieldDiff = {|
+  difference?: ("DIFFERENT" | "NULL" | "SAME" | "SIMILAR") {"typeId": "org.mule.extension.salesforce.api.utility.DifferenceType"}, 
+  name?: String
+|} {"class": "org.mule.extension.salesforce.api.utility.FieldDiff",
+"typeAlias": "FieldDiff",
+"typeId": "org.mule.extension.salesforce.api.utility.FieldDiff"}
+
+
+type org_mule_extension_salesforce_api_utility_AdditionalInformationMap = {|
+  name?: String, 
+  value?: String
+|} {"typeAlias": "AdditionalInformationMap",
+"typeId": "org.mule.extension.salesforce.api.utility.AdditionalInformationMap",
+"class": "org.mule.extension.salesforce.api.utility.AdditionalInformationMap"}
+
+
+type java_lang_Object = {|  |} {"class": "java.lang.Object",
+"typeAlias": "Object",
+"typeId": "java.lang.Object"}
+
+
+
+
+
+
+
+
+
+
+
+
+type java_io_Serializable_38 = {|  |} {"typeId": "java.io.Serializable",
+"typeAlias": "Serializable"}
+
+
+type java_lang_Exception = {|
+  cause?: java_lang_Throwable {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}, 
+  localizedMessage?: String, 
+  message?: String, 
+  stackTrace?: Array<java_lang_StackTraceElement_15 {"typeAlias": "StackTraceElement",
+  "typeId": "java.lang.StackTraceElement"}>, 
+  suppressed?: Array<java_lang_Throwable_25 {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}>
+|} {"typeId": "java.lang.Exception",
+"typeAlias": "Exception",
+"class": "java.lang.Exception"}
+type java_lang_Throwable_25 = {|
+  cause?: java_lang_Throwable_25 {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}, 
+  localizedMessage?: String, 
+  message?: String, 
+  stackTrace?: Array<java_lang_StackTraceElement_29 {"typeAlias": "StackTraceElement",
+  "typeId": "java.lang.StackTraceElement"}>, 
+  suppressed?: Array<java_lang_Throwable_25 {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}>
+|} {"class": "java.lang.Throwable",
+"typeId": "java.lang.Throwable",
+"typeAlias": "Throwable"}
+type java_lang_StackTraceElement_29 = {|
+  classLoaderName?: String, 
+  className?: String, 
+  fileName?: String, 
+  lineNumber?: Number, 
+  methodName?: String, 
+  moduleName?: String, 
+  moduleVersion?: String, 
+  nativeMethod?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "StackTraceElement",
+"typeId": "java.lang.StackTraceElement"}
+
+
+
+
+type java_lang_StackTraceElement_15 = {|
+  classLoaderName?: String, 
+  className?: String, 
+  fileName?: String, 
+  lineNumber?: Number, 
+  methodName?: String, 
+  moduleName?: String, 
+  moduleVersion?: String, 
+  nativeMethod?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "StackTraceElement",
+"typeId": "java.lang.StackTraceElement"}
+
+
+type java_lang_Throwable = {|
+  cause?: java_lang_Throwable {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}, 
+  localizedMessage?: String, 
+  message?: String, 
+  stackTrace?: Array<java_lang_StackTraceElement {"typeAlias": "StackTraceElement",
+  "typeId": "java.lang.StackTraceElement"}>, 
+  suppressed?: Array<java_lang_Throwable {"class": "java.lang.Throwable",
+  "typeId": "java.lang.Throwable",
+  "typeAlias": "Throwable"}>
+|} {"class": "java.lang.Throwable",
+"typeId": "java.lang.Throwable",
+"typeAlias": "Throwable"}
+type java_lang_StackTraceElement = {|
+  classLoaderName?: String, 
+  className?: String, 
+  fileName?: String, 
+  lineNumber?: Number, 
+  methodName?: String, 
+  moduleName?: String, 
+  moduleVersion?: String, 
+  nativeMethod?: Boolean {"typeId": "boolean"}
+|} {"typeAlias": "StackTraceElement",
+"typeId": "java.lang.StackTraceElement"}
+
+
+
+
+
+
+
+
+type java_io_Serializable = {|  |} {"typeId": "java.io.Serializable",
+"typeAlias": "Serializable"}
+
+
+
