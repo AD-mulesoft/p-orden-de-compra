@@ -360,7 +360,7 @@ var salesOrg = vars.orderResponseIDP.rutVolcan match {
     "VM_Sector__c": "00",
     "VM_NumeroOC__c": vars.orderResponseIDP.numeroOrden default "", 
     "VM_FechaPedido__c": vars.orderResponseIDP.fecha as Date default "",
-    "VM_ValidoDe__c": vars.orderResponseIDP.fechaValidoDe as Date default "",
+    "VM_ValidoDe__c": vars.orderResponseIDP.fecha as Date default "",
     "VM_ValidezA__c": vars.orderResponseIDP.fechaValidezA as Date default "",
     "VM_CondicionPago__c": vars.orderResponseIDP.condicionPago default "",
     "VM_Incoterm1__c": incoterms,
