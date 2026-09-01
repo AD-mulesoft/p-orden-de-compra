@@ -108,6 +108,8 @@ output application/json
 ---
 {
 	"emailId": vars.message.id default null,
+	"emailSubject": vars.subject,
+	"nombrePdf": vars.attachment.name default null,
 	"orderId": vars.orderCreated.items[0].id default null,
 	"error": error.errorType default "INTERNAL ERROR",
 	"detail": error.description,
@@ -116,6 +118,35 @@ output application/json
 				</ee:message>
 			</ee:transform>
 			<logger level="ERROR" doc:name="Logger" doc:id="9a591700-dcb0-4961-9f20-3f82eb1a0b4d" message="#[payload]" category="error-handler" />
-		</on-error-propagate>
+			<ee:transform doc:name="Transform Message" doc:id="c5868bd2-e716-47c0-b153-ef46840009e3" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "message": {
+    "subject": "MULESOFT: SALESFORCE_CREATION_ERROR",
+    "body": {
+      "contentType": "Text",
+      "content": write(payload, "application/json")
+    },
+    "toRecipients": (p('secure::errorEmailTo') splitBy  (",")) map (item,index) -> {
+        "emailAddress": {
+            "address": item
+        }
+    }
+  },
+  "saveToSentItems": "false"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<outlook365:send-mail userId="${secure::Outlook.userId}" doc:name="Send mail" doc:id="2a1bb5d4-bce2-44eb-8d9d-fdca29cbaccf" config-ref="Outlook365_Outlook365_Config" >
+				<outlook365:message ><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></outlook365:message>
+			</outlook365:send-mail>
+		
+</on-error-propagate>
 	</error-handler>
 </mule>
