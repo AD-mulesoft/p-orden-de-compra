@@ -45,6 +45,8 @@ IDP:
   clientId: "![K5n3GTBb6ogx/fqVQ0Ky8j+ribGmh/++SXCE4qsJlUR0d6d5E2qTuYQ/BqJuhRD7]"
   clientSecret: "![ZktWZcpDb3bWRgI7ET8bhbBFbWYgaRIR2dUG2+tKEujzY7q4X+hhzpcNIclxoVKe]"
   tokenUrl: "https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token"
+  maxRetry: "10"
+  timeBetweenRetry: "5000"
 
 Outlook:
   baseUrl: "https://graph.microsoft.com/v1.0"

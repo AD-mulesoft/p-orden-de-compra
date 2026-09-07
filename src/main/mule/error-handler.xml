@@ -52,6 +52,7 @@ output application/json
 	"error": error.errorType default "CREATION_ERROR",
 	"detail": error.description,
 	"timestamp": now(),
+	"correlationId": correlationId
 }]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
@@ -114,6 +115,7 @@ output application/json
 	"error": error.errorType default "INTERNAL ERROR",
 	"detail": error.description,
 	"timestamp": now(),
+	"correlationId": correlationId
 }]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>

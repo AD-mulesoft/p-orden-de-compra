@@ -136,7 +136,7 @@ output application/json
 			</otherwise>
 		</choice>
 		<set-variable value="#[vars.responseIDP.id]" doc:name="Set executionId" doc:id="8e25b696-4f26-42c4-bea7-d72d5d877840" variableName="executionId" />
-		<until-successful maxRetries="10" doc:name="Until Successful" doc:id="5451dc70-e62a-4ab5-8bba-d92aea2b07a4" millisBetweenRetries="5000" >
+		<until-successful maxRetries="${secure::IDP.maxRetry}" doc:name="Until Successful" doc:id="5451dc70-e62a-4ab5-8bba-d92aea2b07a4" millisBetweenRetries="${secure::IDP.timeBetweenRetry}" >
 			<choice doc:name="Choice" doc:id="a95e8162-7bcc-4df9-8f3a-219189c4f89e" >
 				<when expression='#[vars.IDP_ID == "ALL"]'>
 					<idp-oc-all-160:getdocumentactionexecution doc:name="getDocumentActionExecution" doc:id="bc11cf80-dbed-4107-9f03-5d8f9e2b08a7" config-ref="IDP___OC_ALL___1_6_0_Config" execution-id="#[vars.executionId]"/>
