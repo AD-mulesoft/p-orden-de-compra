@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/idp-ordende-compra-1270 http://www.mulesoft.
 			</scheduling-strategy>
 		</outlook365:new-email-listener>
 		<set-variable value="#[now()]" doc:name="startTime" doc:id="c15c4216-fb55-4481-8f4d-4861b73f3be1" variableName="startTime" />
-		<logger level="INFO" doc:name="Start" doc:id="21e08c3a-a5a5-4aa4-b042-f1db414d8337" message="INIT email-processing-for-purchase-orders"/>
+		<logger level="INFO" doc:name="Start" doc:id="21e08c3a-a5a5-4aa4-b042-f1db414d8337" message="INIT"/>
 		<logger level="INFO" doc:name="payload" doc:id="2878b26f-2a75-47c6-988d-9a2337bf8ed6" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
 		<set-variable value="#[payload]" doc:name="message" doc:id="92e35a8b-0140-452d-8c28-036afbd90915" variableName="message"/>
 		<ee:transform doc:name="sender &amp; subject &amp; bodyContent" doc:id="f255e116-8f1b-4d4c-bfd6-540aa9333281">

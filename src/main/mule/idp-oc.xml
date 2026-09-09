@@ -153,7 +153,7 @@ output application/json
 					<raise-error doc:name="Raise error" doc:id="55f9e447-4c37-433f-9121-9b4abb4270e5" type="ANY" />
 				</when>
 				<otherwise >
-					<logger level="INFO" doc:name="IDP response" doc:id="2cabe96e-370c-4e19-8072-40dade398354" message="Ok IDP" category="email-processing-for-purchase-orders" />
+					<logger level="INFO" doc:name="IDP response" doc:id="2cabe96e-370c-4e19-8072-40dade398354" message="Ok IDP"/>
 					<logger level="DEBUG" doc:name="payload" doc:id="3822061b-0a9f-4152-8297-25939a12af3e" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
 				</otherwise>
 			</choice>

@@ -36,7 +36,7 @@ vars.orderResponseIDP.items
 		</ee:transform>
 		<choice doc:name="Choice" doc:id="46b0a57c-82bb-434c-84a1-e7748d4614d5" >
 			<when expression='#[lower(vars.orderResponseIDP.nombreSolicitante) contains ("ebema")]'>
-				<logger level="DEBUG" doc:name="EBEMA" doc:id="5f7cdb6f-a0ae-4f4f-9dfd-a23b9a5cfcef" message="NOMBRE SOLICITANTE EBEMA - QUERY SOLICITANTE"/>
+				<logger level="INFO" doc:name="EBEMA" doc:id="5f7cdb6f-a0ae-4f4f-9dfd-a23b9a5cfcef" message="NOMBRE SOLICITANTE EBEMA - QUERY SOLICITANTE"/>
 				<ee:transform doc:name="solicitante" doc:id="1ae5af33-2dec-4fc5-a2a5-3cf7dbf6eb4e">
 					<ee:message>
 					</ee:message>
@@ -47,11 +47,11 @@ output application/json
 "SELECT Id, Cod_Cliente__c FROM Account WHERE Name='" ++ (vars.orderResponseIDP.nombreSolicitante default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="9489a760-7ee3-469e-879b-3a63572b372f" message="#[vars.solicitante]" />
+				<logger level="INFO" doc:name="solicitante" doc:id="9489a760-7ee3-469e-879b-3a63572b372f" message="#[vars.solicitante]" />
 				<salesforce:query doc:name="solicitante" doc:id="9dd6dc9e-14e2-4759-be0f-5ccb72da93b7" config-ref="Salesforce_Config" target="solicitante">
 					<salesforce:salesforce-query><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
 				</salesforce:query>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="e19da94a-9574-46dd-91c7-db2cb39991d5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]"/>
+				<logger level="INFO" doc:name="solicitante" doc:id="e19da94a-9574-46dd-91c7-db2cb39991d5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]"/>
 			
 </when>
 			<when expression='#[(vars.orderResponseIDP.rutSolicitante == "0") and (lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam"))]' >
@@ -65,18 +65,18 @@ output application/json
 "SELECT Id, Cod_Cliente__c FROM Account WHERE Name='" ++ (vars.orderResponseIDP.nombreSolicitante default "") ++ "' AND Cod_Cliente__c <> null AND IsDeleted=false ORDER BY LastModifiedDate DESC"]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="0e66ea8e-1135-4f49-9acd-fd2dcffa7f22" message="#[vars.solicitante]" />
+				<logger level="INFO" doc:name="solicitante" doc:id="0e66ea8e-1135-4f49-9acd-fd2dcffa7f22" message="#[vars.solicitante]" />
 				<salesforce:query doc:name="solicitante" doc:id="03f426e4-5fb1-48de-b8f3-ec2926b66ced" config-ref="Salesforce_Config" target="solicitante" >
 					<salesforce:salesforce-query ><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
 				</salesforce:query>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="8b9ac6af-1afa-4051-ab1c-b2420c8e1522" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
+				<logger level="INFO" doc:name="solicitante" doc:id="8b9ac6af-1afa-4051-ab1c-b2420c8e1522" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
 			
 </when>
 			<when expression='#[vars.orderResponseIDP.rutSolicitante == "0"]' >
-				<logger level="DEBUG" doc:name="RUT 0" doc:id="ef32b9b4-25a6-4930-9617-0cbfd165687f" message="RUT SOLICITANTE 0" />
+				<logger level="INFO" doc:name="RUT 0" doc:id="ef32b9b4-25a6-4930-9617-0cbfd165687f" message="RUT SOLICITANTE 0" />
 			</when>
 			<otherwise >
-				<logger level="DEBUG" doc:name="DEFAULT" doc:id="46effc96-4fc5-4231-b909-c05219051657" message="DEFAULT"/>
+				<logger level="INFO" doc:name="DEFAULT" doc:id="46effc96-4fc5-4231-b909-c05219051657" message="DEFAULT"/>
 				<ee:transform doc:name="solicitante" doc:id="2ecc2e89-0531-410b-8a63-417aa56ba8f1">
 					<ee:message />
 					<ee:variables>
@@ -86,11 +86,11 @@ output application/json
 "SELECT Id, Cod_Cliente__c FROM Account WHERE Rut__c='" ++ (vars.orderResponseIDP.rutSolicitante default "") ++ "'"]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="6d957fc0-3f40-44d4-92f1-bf5c501d41ac" message="#[vars.solicitante]" />
+				<logger level="INFO" doc:name="solicitante" doc:id="6d957fc0-3f40-44d4-92f1-bf5c501d41ac" message="#[vars.solicitante]" />
 				<salesforce:query doc:name="solicitante" doc:id="1eb1f46b-2921-4318-8700-2329c2890edb" config-ref="Salesforce_Config" target="solicitante">
 			<salesforce:salesforce-query><![CDATA[#[vars.solicitante]]]></salesforce:salesforce-query>
 		</salesforce:query>
-				<logger level="DEBUG" doc:name="solicitante" doc:id="f1d7e194-d7b4-4112-b22b-b0d33ff19998" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
+				<logger level="INFO" doc:name="solicitante" doc:id="f1d7e194-d7b4-4112-b22b-b0d33ff19998" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.solicitante]" />
 			
 </otherwise>
 		</choice>
@@ -98,7 +98,7 @@ output application/json
 			<when expression='#[((vars.orderResponseIDP.direccionDespachar != "0") and (!isEmpty(vars.orderResponseIDP.direccionDespachar))) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac"))]'>
 				<choice doc:name="Choice" doc:id="18a4237c-dfd7-47e2-89e4-0b60dc5c46a7">
 			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.direccionDespachar == "0") and (vars.orderResponseIDP.source == "Correo")]'>
-				<logger level="DEBUG" doc:name="SODIMAC 0" doc:id="9d72d89e-f5d7-45ef-acaa-f42b977cb496" message="NOMBRE SOLICITANTE SODIMAC - DIRECCION DESPACHAR 0" />
+				<logger level="INFO" doc:name="SODIMAC 0" doc:id="9d72d89e-f5d7-45ef-acaa-f42b977cb496" message="NOMBRE SOLICITANTE SODIMAC - DIRECCION DESPACHAR 0" />
 				<ee:transform doc:name="destinatario" doc:id="a24832d1-e473-4579-bd64-db055ddd91da">
 					<ee:message />
 					<ee:variables>
@@ -113,7 +113,7 @@ var nombre = (trim(lower(vars.orderResponseIDP.nombreDestinatario)) default "") 
 			
 </when>
 			<when expression='#[((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "XML"))]'>
-				<logger level="DEBUG" doc:name="SODIMAC XML" doc:id="3bec1cb0-12db-4a13-8249-5811191bb358" message="NOMBRE SOLICITANTE SODIMAC - XML" />
+				<logger level="INFO" doc:name="SODIMAC XML" doc:id="3bec1cb0-12db-4a13-8249-5811191bb358" message="NOMBRE SOLICITANTE SODIMAC - XML" />
 				<ee:transform doc:name="destinatario" doc:id="d9e090d3-e026-48c0-b5fb-f95b131e6484">
 					<ee:message>
 					</ee:message>
@@ -135,7 +135,7 @@ output application/json
 				</ee:transform>
 			</when>
 			<when expression='#[((lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and (vars.orderResponseIDP.source == "GCP"))]'>
-				<logger level="DEBUG" doc:name="SODIMAC GCP" doc:id="ae3ae4d2-1ac1-48de-9ab1-d30e38e180d4" message="NOMBRE SOLICITANTE SODIMAC - GCP" />
+				<logger level="INFO" doc:name="SODIMAC GCP" doc:id="ae3ae4d2-1ac1-48de-9ab1-d30e38e180d4" message="NOMBRE SOLICITANTE SODIMAC - GCP" />
 						<ee:transform doc:name="destinatario" doc:id="019e99ae-928b-49d8-b620-98d9ae701dd1">
 					<ee:message>
 					</ee:message>
@@ -158,7 +158,7 @@ output application/json
 			
 </when>
 			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) and (vars.orderResponseIDP.canal == "10")]'>
-				<logger level="DEBUG" doc:name="EASY 10" doc:id="14a7245e-596a-4372-b7ad-a2f054ed601f" message="NOMBRE SOLICITANTE EASY - CANAL 10" />
+				<logger level="INFO" doc:name="EASY 10" doc:id="14a7245e-596a-4372-b7ad-a2f054ed601f" message="NOMBRE SOLICITANTE EASY - CANAL 10" />
 				<ee:transform doc:name="destinatario" doc:id="4887f378-37fb-4d87-b4a9-42e8e6cf94fe">
 					<ee:message>
 					</ee:message>
@@ -176,7 +176,7 @@ var direccion = if(vars.orderResponseIDP.direccionDespachar != "0")
 				</ee:transform>
 			</when>
 			<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart")) and (vars.orderResponseIDP.canal == "10")]'>
-				<logger level="DEBUG" doc:name="CONSTRUMART 10" doc:id="a6e03902-2950-4a37-b806-0343f00f8775" message="NOMBRE SOLICITANTE CONSTRUMART - CANAL 10" />
+				<logger level="INFO" doc:name="CONSTRUMART 10" doc:id="a6e03902-2950-4a37-b806-0343f00f8775" message="NOMBRE SOLICITANTE CONSTRUMART - CANAL 10" />
 				<ee:transform doc:name="destinatario" doc:id="50c28baf-a41d-432a-835f-8ba40683312e">
 					<ee:message />
 					<ee:variables>
@@ -211,7 +211,7 @@ var direccion = trim(substringAfterLast((lower(vars.orderResponseIDP.direccionDe
 						</ee:transform>
 					</when>
 					<otherwise>
-				<logger level="DEBUG" doc:name="DEFAULT" doc:id="451c6466-50fa-473e-b52d-1a730441cbba" message="DEFAULT" />
+				<logger level="INFO" doc:name="DEFAULT" doc:id="451c6466-50fa-473e-b52d-1a730441cbba" message="DEFAULT" />
 				<ee:transform doc:name="destinatario" doc:id="526e19aa-0d54-4361-bada-76b901e84e48">
 			<ee:message>
 			</ee:message>
@@ -230,11 +230,11 @@ var direccion = if(vars.orderResponseIDP.direccionDespachar != "0")
 			
 </otherwise>
 		</choice>
-				<logger level="DEBUG" doc:name="destinatario" doc:id="35819ae8-e1bb-49f8-88ce-68ed5bd319be" message="#[vars.destinatario]" />
+				<logger level="INFO" doc:name="destinatario" doc:id="35819ae8-e1bb-49f8-88ce-68ed5bd319be" message="#[vars.destinatario]" />
 				<salesforce:query doc:name="destinatario" doc:id="a6c682dc-d98b-4205-bf19-a1ea6a98cd17" config-ref="Salesforce_Config" target="destinatario">
 					<salesforce:salesforce-query><![CDATA[#[vars.destinatario]]]></salesforce:salesforce-query>
 				</salesforce:query>
-				<logger level="DEBUG" doc:name="destinatario" doc:id="db80a54d-67c0-4498-9e66-03b4930c21b1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.destinatario]" />
+				<logger level="INFO" doc:name="destinatario" doc:id="db80a54d-67c0-4498-9e66-03b4930c21b1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.destinatario]" />
 			</when>
 			<otherwise >
 				<logger level="INFO" doc:name="Logger" doc:id="463a7cea-1ff6-4035-a1fe-4b1fe6b5070d" message="No tiene direccion de despacho"/>
@@ -604,7 +604,7 @@ output application/java
 		<set-variable value="#[[]]" doc:name="orderProductArray" doc:id="06aadea4-40f8-408e-baca-67624372b4ee" variableName="orderProductArray"/>
 		<set-variable value="#[[]]" doc:name="orderFleteArray" doc:id="0b8916d9-af19-4bb3-8a9f-7bbfcca3bdbd" variableName="orderFleteArray"/>
 		<foreach doc:name="For Each" doc:id="207cbd08-6281-4228-81ae-5c4e47cd1d26" collection="#[vars.productList]">
-			<logger level="DEBUG" doc:name="FOR EACH PRODUCT LIST" doc:id="e68c1384-a96f-4372-a29b-6dd539da5d4e" message="FOR EACH PRODUCT LIST"/>
+			<logger level="INFO" doc:name="FOR EACH PRODUCT LIST" doc:id="e68c1384-a96f-4372-a29b-6dd539da5d4e" message="FOR EACH PRODUCT LIST"/>
 			<ee:transform doc:name="codigoMaterial" doc:id="8c2db9a1-d467-414d-a657-bb8a399db7a5" >
 				<ee:message >
 				</ee:message>
@@ -634,14 +634,14 @@ var codigoSolicitante = ((vars.solicitante[0].Cod_Cliente__c default 0) as Numbe
 				
 </ee:variables>
 			</ee:transform>
-			<logger level="DEBUG" doc:name="material" doc:id="849f72b2-6014-456e-912b-2323033f8235" message="#[vars.material]"/>
+			<logger level="INFO" doc:name="material" doc:id="849f72b2-6014-456e-912b-2323033f8235" message="#[vars.material]"/>
 			<salesforce:query doc:name="material" doc:id="7efd292f-49e5-4a21-a618-f4da9b4a7789" config-ref="Salesforce_Config" target="material">
 			<salesforce:salesforce-query><![CDATA[#[vars.material]]]></salesforce:salesforce-query>
 		</salesforce:query>
-			<logger level="DEBUG" doc:name="material" doc:id="cb2755dc-74fd-4c2a-aad1-1dc078b9f3c8" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]"/>
+			<logger level="INFO" doc:name="material" doc:id="cb2755dc-74fd-4c2a-aad1-1dc078b9f3c8" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]"/>
 			<choice doc:name="Choice" doc:id="1538f7c7-537e-4426-8f2d-b76edde288f9" >
 				<when expression='#[(lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")) and vars.material[0].Id == null]'>
-					<logger level="DEBUG" doc:name="SOLICITANTE SODIMAC - MATERIAL ID = NULL" doc:id="c83783d2-6ac8-4344-a906-1e4360917de9" message="SOLICITANTE SODIMAC - MATERIAL ID = NULL"/>
+					<logger level="INFO" doc:name="SOLICITANTE SODIMAC - MATERIAL ID = NULL" doc:id="c83783d2-6ac8-4344-a906-1e4360917de9" message="SOLICITANTE SODIMAC - MATERIAL ID = NULL"/>
 					<ee:transform doc:name="material" doc:id="fed4f5db-fc3d-4438-bdf0-64a9b84abddc" >
 						<ee:message />
 						<ee:variables >
@@ -660,17 +660,17 @@ var codigoSolicitante = ((vars.solicitante[0].Cod_Cliente__c default 0) as Numbe
 						
 </ee:variables>
 					</ee:transform>
-					<logger level="DEBUG" doc:name="material" doc:id="fa60988f-7182-4425-9286-1e046e2f551a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.codigoMaterial]" />
+					<logger level="INFO" doc:name="material" doc:id="fa60988f-7182-4425-9286-1e046e2f551a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.codigoMaterial]" />
 					<salesforce:query doc:name="material" doc:id="29b3e92e-ad10-4da9-9c7b-eb32f931cfb4" config-ref="Salesforce_Config" target="material" >
 						<salesforce:salesforce-query ><![CDATA[#[vars.material]]]></salesforce:salesforce-query>
 					</salesforce:query>
-					<logger level="DEBUG" doc:name="material" doc:id="f6f910c9-c1e7-4c75-888c-57b3a0979faa" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]" />
+					<logger level="INFO" doc:name="material" doc:id="f6f910c9-c1e7-4c75-888c-57b3a0979faa" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.material]" />
 				
 </when>
 			</choice>
 			<choice doc:name="Choice" doc:id="b43177d2-1848-460e-97c0-07e8dd8f97ba" >
 				<when expression="#[vars.material[0].Id != null]">
-					<logger level="DEBUG" doc:name="TIENE MATERIAL" doc:id="4fd05be0-d569-4ea7-95a3-9d6da08297ab" message="TIENE MATERIAL"/>
+					<logger level="INFO" doc:name="TIENE MATERIAL" doc:id="4fd05be0-d569-4ea7-95a3-9d6da08297ab" message="TIENE MATERIAL"/>
 					<ee:transform doc:name="convUnid" doc:id="a13b7260-f108-465f-b034-32a10f6d910e">
 						<ee:message>
 						</ee:message>
@@ -742,11 +742,11 @@ var codigoSolicitante = (vars.solicitante[0].Cod_Cliente__c as Number) as String
 						
 </ee:variables>
 					</ee:transform>
-					<logger level="DEBUG" doc:name="convUnid" doc:id="a72a57a5-a7c1-4a84-ba3d-f8e549855524" message='#[vars.convUnid]' />
+					<logger level="INFO" doc:name="convUnid" doc:id="a72a57a5-a7c1-4a84-ba3d-f8e549855524" message='#[vars.convUnid]' />
 					<salesforce:query doc:name="convUnid" doc:id="1817c5c1-5ee2-4df6-b070-e82e410f34d1" config-ref="Salesforce_Config" target="convUnid">
 			<salesforce:salesforce-query><![CDATA[#[vars.convUnid]]]></salesforce:salesforce-query>
 		</salesforce:query>
-					<logger level="DEBUG" doc:name="convUnid" doc:id="3e558aa6-2763-4a76-9124-2816afb92d45" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.convUnid]" />
+					<logger level="INFO" doc:name="convUnid" doc:id="3e558aa6-2763-4a76-9124-2816afb92d45" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.convUnid]" />
 					<ee:transform doc:name="cantidadVolcan" doc:id="c63b1ec9-ed78-4b7d-b826-4f1d9ef045bf">
 				<ee:message>
 				</ee:message>
@@ -760,8 +760,8 @@ else payload.cantidad
 ]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-					<logger level="DEBUG" doc:name="cantidadVolcan" doc:id="7bb5238b-a080-43f6-ae06-f1f831c7c1d7" message='#[%dw 2.0&#10;output application/json&#10;---&#10;"cantidad Volcan: " ++ vars.cantidadVolcan]'/>
-					<logger level="DEBUG" doc:name="QUERY PRODUCTO" doc:id="5fcf12f1-0abe-4afe-8f36-811e5dab16c3" message="QUERY PRODUCTO"/>
+					<logger level="INFO" doc:name="cantidadVolcan" doc:id="7bb5238b-a080-43f6-ae06-f1f831c7c1d7" message='#[%dw 2.0&#10;output application/json&#10;---&#10;"cantidad Volcan: " ++ vars.cantidadVolcan]'/>
+					<logger level="INFO" doc:name="QUERY PRODUCTO" doc:id="5fcf12f1-0abe-4afe-8f36-811e5dab16c3" message="QUERY PRODUCTO"/>
 					<ee:transform doc:name="producto" doc:id="f6c60dd6-5634-4f8c-91fc-dfec973614e0">
 						<ee:message>
 						</ee:message>
@@ -773,11 +773,11 @@ var codigoProducto =  vars.material[0].Cod_Prod_Volc__c
 "SELECT Id, Peso_Neto__c, Unidad_de_Medida_Venta__c, Grupo_Materiales_2__c FROM Product2 WHERE ProductCode='" ++ codigoProducto ++ "' AND IsActive=true"]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
-					<logger level="DEBUG" doc:name="producto" doc:id="972174fe-c08f-433c-9dd4-1e34b6b11cfe" message="#[vars.producto]" />
+					<logger level="INFO" doc:name="producto" doc:id="972174fe-c08f-433c-9dd4-1e34b6b11cfe" message="#[vars.producto]" />
 					<salesforce:query doc:name="producto" doc:id="26e301dd-5e4d-452f-bc2f-dfa63e5385e0" config-ref="Salesforce_Config" target="producto">
 			<salesforce:salesforce-query><![CDATA[#[vars.producto]]]></salesforce:salesforce-query>
 		</salesforce:query>
-					<logger level="DEBUG" doc:name="producto" doc:id="0bce4a6a-482e-4f6e-9482-c71f8223f719" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.producto]" />
+					<logger level="INFO" doc:name="producto" doc:id="0bce4a6a-482e-4f6e-9482-c71f8223f719" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.producto]" />
 					<logger level="INFO" doc:name="QUERY PRICE BOOK" doc:id="712e4585-b966-44e2-aa30-b13a3375f35d" message="QUERY PRICE BOOK"/>
 					<ee:transform doc:name="pricebookEntry" doc:id="87c0c122-cbaa-497d-9f74-ee6e53b9723e">
 								<ee:message>
@@ -794,8 +794,8 @@ var productoId = vars.producto[0].Id default p('secure::Salesforce.datosFijos.pr
 					<salesforce:query doc:name="pricebookEntryId" doc:id="3c8193af-2a82-41ac-ae93-11672c0e0a9d" config-ref="Salesforce_Config" target="pricebookEntry">
 				<salesforce:salesforce-query><![CDATA[#[vars.pricebookEntry]]]></salesforce:salesforce-query>
 			</salesforce:query>
-					<logger level="DEBUG" doc:name="pricebookEntry" doc:id="3df3aa68-331f-4d38-a695-6955785a85b5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntry]" />
-					<logger level="DEBUG" doc:name="QUERY FLETE" doc:id="a5d2a1a1-dea1-4102-a1e5-19369f487371" message="QUERY FLETE" />
+					<logger level="INFO" doc:name="pricebookEntry" doc:id="3df3aa68-331f-4d38-a695-6955785a85b5" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntry]" />
+					<logger level="INFO" doc:name="QUERY FLETE" doc:id="a5d2a1a1-dea1-4102-a1e5-19369f487371" message="QUERY FLETE" />
 					<ee:transform doc:name="fletee" doc:id="3120c96d-b04b-4d36-b647-4756e390642f" >
 						<ee:message >
 						</ee:message>
@@ -807,15 +807,15 @@ var	subFamilia = vars.producto[0].Grupo_Materiales_2__c
 "SELECT Id, Prod_Flete__c, Unid_med_base__c FROM MS_Rel_Fletes__mdt WHERE Subfam_Prod__c='" ++ subFamilia ++ "'"]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
-					<logger level="DEBUG" doc:name="flete" doc:id="29a1263d-a1c2-40b7-8e4d-7911264b6c8c" message="#[vars.flete]" />
+					<logger level="INFO" doc:name="flete" doc:id="29a1263d-a1c2-40b7-8e4d-7911264b6c8c" message="#[vars.flete]" />
 					<salesforce:query doc:name="flete" doc:id="a64b645a-5674-4a87-9f14-8b93e773536c" config-ref="Salesforce_Config" target="flete">
 			<salesforce:salesforce-query><![CDATA[#[vars.flete]]]></salesforce:salesforce-query>
 		</salesforce:query>
-					<logger level="DEBUG" doc:name="flete" doc:id="9f447e77-2338-4f66-88f8-eed49eacd7e7" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.flete]" />
+					<logger level="INFO" doc:name="flete" doc:id="9f447e77-2338-4f66-88f8-eed49eacd7e7" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.flete]" />
 					<choice doc:name="Choice" doc:id="f6052e36-a97f-4b86-b829-4de9ab4df0f9">
 						<when expression="#[vars.bodyOrder[0].VM_Incoterm1__c == 'CFV' and vars.flete[0].Id != null // and !(lower(payload.descripcion) contains (&quot;pallet&quot;))]">
-							<logger level="DEBUG" doc:name="VM_Incoterm1__c == 'CFV'" doc:id="539d330c-c4b5-45c1-9333-e4bdde47dcee" message="VM_Incoterm1__c == 'CFV'"/>
-							<logger level="DEBUG" doc:name="QUERY PRODUCTO FLETE" doc:id="1ed1bf39-4347-4d3d-9da5-d2b4234ba007" message="QUERY PRODUCTO FLETE"/>
+							<logger level="INFO" doc:name="VM_Incoterm1__c == 'CFV'" doc:id="539d330c-c4b5-45c1-9333-e4bdde47dcee" message="VM_Incoterm1__c == 'CFV'"/>
+							<logger level="INFO" doc:name="QUERY PRODUCTO FLETE" doc:id="1ed1bf39-4347-4d3d-9da5-d2b4234ba007" message="QUERY PRODUCTO FLETE"/>
 							<ee:transform doc:name="productoFlete" doc:id="1bf26b3a-230d-4b67-8616-7eec7be95e91">
 								<ee:message>
 								</ee:message>
@@ -827,12 +827,12 @@ var codigoFlete = vars.flete[0].Prod_Flete__c
 "SELECT Id FROM Product2 WHERE ProductCode='" ++ codigoFlete ++ "' AND IsActive=true"]]></ee:set-variable>
 								</ee:variables>
 							</ee:transform>
-							<logger level="DEBUG" doc:name="productoFlete" doc:id="4fe3892d-ff9e-47d8-9934-1d9908058d18" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
+							<logger level="INFO" doc:name="productoFlete" doc:id="4fe3892d-ff9e-47d8-9934-1d9908058d18" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
 							<salesforce:query doc:name="productoFlete" doc:id="d980657b-28e7-4ed2-a7da-caf2548feeb4" config-ref="Salesforce_Config" target="productoFlete">
 				<salesforce:salesforce-query><![CDATA[#[vars.productoFlete]]]></salesforce:salesforce-query>
 			</salesforce:query>
-							<logger level="DEBUG" doc:name="productoFlete" doc:id="07c34c47-fe70-4c95-8f88-d0512621f7c0" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
-							<logger level="DEBUG" doc:name="QUERY PRICE BOOK" doc:id="fb7287bf-3066-4da9-9576-01e1c81ccff0" message="QUERY PRICE BOOK" />
+							<logger level="INFO" doc:name="productoFlete" doc:id="07c34c47-fe70-4c95-8f88-d0512621f7c0" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.productoFlete]" />
+							<logger level="INFO" doc:name="QUERY PRICE BOOK" doc:id="fb7287bf-3066-4da9-9576-01e1c81ccff0" message="QUERY PRICE BOOK" />
 							<ee:transform doc:name="pricebookEntryFlete" doc:id="832dd763-95cc-41b3-8220-933eaab9c67f">
 								<ee:message>
 								</ee:message>
@@ -845,11 +845,11 @@ var productoFleteId = vars.productoFlete[0].Id default p('secure::Salesforce.dat
 "SELECT Id FROM PricebookEntry WHERE Pricebook2Id='" ++ pricebookId ++ "' AND Product2Id='" ++ productoFleteId ++ "' AND CurrencyIsoCode='CLP'"]]></ee:set-variable>
 								</ee:variables>
 							</ee:transform>
-							<logger level="DEBUG" doc:name="pricebookEntry" doc:id="a4d1ea99-eadc-480d-a1eb-144035b1e47d" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
+							<logger level="INFO" doc:name="pricebookEntry" doc:id="a4d1ea99-eadc-480d-a1eb-144035b1e47d" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
 							<salesforce:query doc:name="pricebookEntryFlete" doc:id="187f7bc6-0746-4c2c-bff1-f04baea65dfc" config-ref="Salesforce_Config" target="pricebookEntryFlete">
 				<salesforce:salesforce-query><![CDATA[#[vars.pricebookEntryFlete]]]></salesforce:salesforce-query>
 			</salesforce:query>
-							<logger level="DEBUG" doc:name="pricebookEntryFlete" doc:id="2dad386c-081e-469b-9df2-c7abf0b7da33" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
+							<logger level="INFO" doc:name="pricebookEntryFlete" doc:id="2dad386c-081e-469b-9df2-c7abf0b7da33" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.pricebookEntryFlete]" />
 							<ee:transform doc:name="UMflete" doc:id="69f14672-3682-4103-a550-a12ab18732a0">
 								<ee:message>
 								</ee:message>
@@ -863,7 +863,7 @@ else
 	vars.flete[0].Unid_med_base__c]]></ee:set-variable>
 								</ee:variables>
 							</ee:transform>
-							<logger level="DEBUG" doc:name="QUERY PRECIO FLETE" doc:id="64fa41b9-1463-4070-8e6f-600c7ec84ab8" message="QUERY PRECIO FLETE" />
+							<logger level="INFO" doc:name="QUERY PRECIO FLETE" doc:id="64fa41b9-1463-4070-8e6f-600c7ec84ab8" message="QUERY PRECIO FLETE" />
 							<choice doc:name="Choice" doc:id="bb3a4f46-30a7-4d01-9175-946e2b98d174">
 								<when expression='#[((vars.orderResponseIDP.canal == "10") and ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("easy")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("construmart")) or (lower(vars.orderResponseIDP.nombreSolicitante) contains ("sodimac")))) or ((lower(vars.orderResponseIDP.nombreSolicitante) contains ("prodalam")) and (vars.orderResponseIDP.canal == "20"))]'>
 									<ee:transform doc:name="precioFlete" doc:id="9d94839f-4be5-484d-b4db-ef7bb6925760" >
@@ -890,13 +890,13 @@ output application/json
 true]]></ee:set-variable>
 										</ee:variables>
 									</ee:transform>
-									<logger level="DEBUG" doc:name="precioFlete" doc:id="441eadb3-6e1f-4b49-84e4-edd1a0532077" message="#[vars.precioFlete]" />
+									<logger level="INFO" doc:name="precioFlete" doc:id="441eadb3-6e1f-4b49-84e4-edd1a0532077" message="#[vars.precioFlete]" />
 									<until-successful maxRetries="3" doc:name="Until Successful" doc:id="285bc1a5-d2ed-44ac-81b0-5aa958d62bef" millisBetweenRetries="5000">
 										<db:select doc:name="Select" doc:id="946b2cc7-2c1d-462b-9e1d-90ad6860802a" config-ref="Database_Config" target="precioFlete">
 										<db:sql><![CDATA[#[vars.precioFlete]]]></db:sql>
 									</db:select>
 									</until-successful>
-									<logger level="DEBUG" doc:name="precioFlete" doc:id="946ff983-70ad-44e2-8eb9-a312c006acff" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
+									<logger level="INFO" doc:name="precioFlete" doc:id="946ff983-70ad-44e2-8eb9-a312c006acff" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
 									<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="d888532a-ebf2-4673-841e-22da58d1d461" >
 										<ee:message >
 										</ee:message>
@@ -930,11 +930,11 @@ output application/json
 false]]></ee:set-variable>
 								</ee:variables>
 							</ee:transform>
-									<logger level="DEBUG" doc:name="precioFlete" doc:id="712d0ede-50e6-44be-b370-f038c67cff2e" message="#[vars.precioFlete]" />
+									<logger level="INFO" doc:name="precioFlete" doc:id="712d0ede-50e6-44be-b370-f038c67cff2e" message="#[vars.precioFlete]" />
 									<salesforce:query doc:name="precioFlete" doc:id="8917658a-e59f-47db-be37-4ef65e68ba67" config-ref="Salesforce_Config" target="precioFlete">
 			<salesforce:salesforce-query><![CDATA[#[vars.precioFlete]]]></salesforce:salesforce-query>
 		</salesforce:query>
-									<logger level="DEBUG" doc:name="precioFlete" doc:id="f6174b64-68bf-4c59-8759-a266755046e9" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
+									<logger level="INFO" doc:name="precioFlete" doc:id="f6174b64-68bf-4c59-8759-a266755046e9" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.precioFlete]" />
 								</otherwise>
 							</choice>
 							<ee:transform doc:name="cantidadFlete" doc:id="d1229ad4-b95d-42d7-b23c-0a45e13eff40">
@@ -949,7 +949,7 @@ if (vars.flete[0].Unid_med_base__c == 'KG')
 else vars.cantidadVolcan]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-							<logger level="DEBUG" doc:name="cantidadFlete" doc:id="ae12100f-b752-48f9-a330-1490aef75fca" message='#["cantidadFlete: " ++ vars.cantidadFlete as String]'/>
+							<logger level="INFO" doc:name="cantidadFlete" doc:id="ae12100f-b752-48f9-a330-1490aef75fca" message='#["cantidadFlete: " ++ vars.cantidadFlete as String]'/>
 							<ee:transform doc:name="precioTotalFlete" doc:id="388e0b85-b0ae-4b40-9350-d08e6f8a5526">
 				<ee:message>
 				</ee:message>
@@ -960,7 +960,7 @@ output application/java
 (vars.precioFlete[0].Precio__c default 0) as Number * vars.cantidadFlete]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-							<logger level="DEBUG" doc:name="precioTotalFlete" doc:id="b8f96edb-0375-41e7-a8d9-65fa50c7a113" message='#["precioTotalFlete: " ++ vars.precioTotalFlete as String]'/>
+							<logger level="INFO" doc:name="precioTotalFlete" doc:id="b8f96edb-0375-41e7-a8d9-65fa50c7a113" message='#["precioTotalFlete: " ++ vars.precioTotalFlete as String]'/>
 							<ee:transform doc:name="precioTotalMaterial" doc:id="2274452d-03aa-4b57-9ca1-47347318c10a">
 				<ee:message>
 				</ee:message>
@@ -974,7 +974,7 @@ else
 	payload.precioTotal]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-							<logger level="DEBUG" doc:name="precioTotalMaterial" doc:id="68ec006a-e52a-4435-88de-ec0ba276d608" message='#["precioTotalMaterial: " ++ vars.precioTotalMaterial as String]'/>
+							<logger level="INFO" doc:name="precioTotalMaterial" doc:id="68ec006a-e52a-4435-88de-ec0ba276d608" message='#["precioTotalMaterial: " ++ vars.precioTotalMaterial as String]'/>
 							<ee:transform doc:name="precioUnitarioMaterial" doc:id="d204b43b-ac34-42f3-ae25-4e76c2c50565">
 				<ee:message>
 				</ee:message>
@@ -985,7 +985,7 @@ output application/java
 vars.precioTotalMaterial / vars.cantidadVolcan]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-							<logger level="DEBUG" doc:name="precioUnitarioMaterial" doc:id="4c2cb163-6737-4668-829d-da181bcf3fd1" message='#["precioUnitarioMaterial: " ++ vars.precioUnitarioMaterial as String]'/>
+							<logger level="INFO" doc:name="precioUnitarioMaterial" doc:id="4c2cb163-6737-4668-829d-da181bcf3fd1" message='#["precioUnitarioMaterial: " ++ vars.precioUnitarioMaterial as String]'/>
 							<ee:transform doc:name="bodyOrderFlete" doc:id="1ab07f3f-e22e-4b4b-aef3-3c58af993cf1">
 				<ee:message />
 				<ee:variables>
@@ -1026,7 +1026,7 @@ vars.orderFleteArray + vars.bodyOrderFlete]]></ee:set-variable>
 						
 </when>
 						<otherwise >
-							<logger level="DEBUG" doc:name="NO CALCULAR FLETE" doc:id="525ffbfc-2418-44f0-88f3-a4993d6e6415" message="NO CALCULAR FLETE"/>
+							<logger level="INFO" doc:name="NO CALCULAR FLETE" doc:id="525ffbfc-2418-44f0-88f3-a4993d6e6415" message="NO CALCULAR FLETE"/>
 							<ee:transform doc:name="precioUnitarioMaterial" doc:id="c4483325-ae51-4ab3-8c43-14555f283d67">
 								<ee:message />
 								<ee:variables>
@@ -1183,8 +1183,8 @@ vars.orderProductArray + vars.bodyOrderProduct]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
 		</foreach>
-		<logger level="DEBUG" doc:name="orderProductArray" doc:id="571b8e9d-dfd2-46da-a75a-3c1130e6d2ee" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderProductArray]"/>
-		<logger level="DEBUG" doc:name="orderFleteArray" doc:id="4cc48553-0915-4c29-825e-4d4038b42337" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderFleteArray]" />
+		<logger level="INFO" doc:name="orderProductArray" doc:id="571b8e9d-dfd2-46da-a75a-3c1130e6d2ee" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderProductArray]"/>
+		<logger level="INFO" doc:name="orderFleteArray" doc:id="4cc48553-0915-4c29-825e-4d4038b42337" message="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.orderFleteArray]" />
 		<ee:transform doc:name="orderFleteArray  group by" doc:id="2b00c0b2-5cac-426e-9e9b-0a39a2a0c3ab" >
 			<ee:message >
 			</ee:message>
@@ -1233,7 +1233,7 @@ vars.orderProductArray ++ vars.orderFleteArray
 		<validation:is-not-null doc:name="orderItemId validation" doc:id="32b6e6fe-28b7-4f39-bd34-622c6360acf9" config-ref="Validation_Config" value="#[payload.items[0].id]" message='#["No se pudieron crear los OrderItems: " ++ (payload.items[0].exception.message default "")]'>
 			<error-mapping sourceType="VALIDATION:NULL" targetType="SF:CREATION_ERROR" />
 		</validation:is-not-null>
-		<logger level="INFO" doc:name="End" doc:id="b725a54f-ddc8-4c79-afc8-3682eaae9bea" message="END create-order-in-salesforce" category="create-order-in-salesforce"/>
+		<logger level="INFO" doc:name="End" doc:id="b725a54f-ddc8-4c79-afc8-3682eaae9bea" message="END create-order-in-salesforce"/>
 	
 </flow>
 	<sub-flow name="contentVersion_subFlow" doc:id="12daee37-38a3-42b3-b7ca-61169ed8755b" >

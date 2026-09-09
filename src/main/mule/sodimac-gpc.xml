@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/pubsub http://www.mulesoft.org/schema/mule/p
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
 	<flow name="Sodimac-OC-GPC" doc:id="eafeb0df-72cd-454a-a194-a6434145c4f3" maxConcurrency="1" >
-		<pubsub:message-listener doc:name="On message listener" doc:id="4201d77a-1546-4d44-8eb5-ed05f0172e44" config-ref="Google_Pub_Sub_Configuration" projectId="${secure::SodimacGCP.projectId}" subscriptionName="${secure::SodimacGCP.subscriptionName}" acknowledgmentMode="MANUAL"/>
+		<!-- [STUDIO:"On message listener"]<pubsub:message-listener doc:name="On message listener" doc:id="4201d77a-1546-4d44-8eb5-ed05f0172e44" config-ref="Google_Pub_Sub_Configuration" projectId="${secure::SodimacGCP.projectId}" subscriptionName="${secure::SodimacGCP.subscriptionName}" acknowledgmentMode="MANUAL"/> [STUDIO] -->
 		<logger level="INFO" doc:name="START" doc:id="a0333abf-09e9-4007-b903-3ebe704b22d8" message="START"/>
 		<logger level="DEBUG" doc:name="attributes" doc:id="1eef8671-be6c-499e-8282-9643c5d70821" message="#[%dw 2.0&#10;output application/json&#10;---&#10;message.attributes]"/>
 		<logger level="DEBUG" doc:name="payload" doc:id="5feeb0ce-ffc0-4662-87b8-62f96018c4d1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
