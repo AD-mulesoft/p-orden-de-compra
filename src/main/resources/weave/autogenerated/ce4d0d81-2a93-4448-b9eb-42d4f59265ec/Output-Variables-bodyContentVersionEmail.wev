@@ -1,9 +1,0 @@
-%dw 2.0
-
-type auto_ce4d0d81_2a93_4448_b9eb_42d4f59265ec_Output_Variables_bodyContentVersionEmail = Array<{|  Title: String,   PathOnClient: String,   ContentLocation: String,   FirstPublishLocationId: java_io_Serializable {"typeId": "java.io.Serializable",
-  "typeAlias": "Serializable"} | Null,   VersionData: String|}>
-type java_io_Serializable = {|  |} {"typeId": "java.io.Serializable",
-"typeAlias": "Serializable"}
-
-
-

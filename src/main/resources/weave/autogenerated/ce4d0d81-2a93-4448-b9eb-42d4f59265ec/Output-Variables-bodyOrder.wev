@@ -1,4 +1,0 @@
-%dw 2.0
-
-type auto_ce4d0d81_2a93_4448_b9eb_42d4f59265ec_Output_Variables_bodyOrder = Array<{|  AccountId: String,   EffectiveDate: Date,   Status: String,   N_Contrato_SAP__c: String,   Pricebook2Id: String,   RecordTypeId: String {"typeId": "Id"} | Null,   Tienda_Obra__c: String {"typeId": "Id"} | Null,   VM_ClasePedido__c: String,   VM_OrganizacionVentas__c: String | Null,   VM_Canal__c: Null,   VM_Sector__c: String,   VM_NumeroOC__c: Null,   VM_FechaPedido__c: Date,   VM_ValidoDe__c: Date,   VM_ValidezA__c: Date,   VM_CondicionPago__c: String | Null,   VM_Incoterm1__c: Null,   VM_Incoterm2__c: String,   VM_CalculoFlete__c: String,   VM_TipoInterloculorSolicitante__c: String,   VM_CodigoSolicitante__c: String {"typeId": "Cod_Cliente__c"} | Null,   VM_TipoInterloculorDestinatario__c: String,   VM_CodigoDestinatario__c: String {"typeId": "Cod_Cliente__c"} | Null,   CurrencyIsoCode: String,   VM_Remitente__c: Null,   VM_Email_Conversation_Id__c: String|}>
-

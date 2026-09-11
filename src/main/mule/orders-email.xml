@@ -57,6 +57,7 @@ substringAfterLast(vars.message.sender.emailAddress.address,"@")]]></ee:set-vari
 			
 </ee:variables>
 		</ee:transform>
+		<logger level="INFO" doc:name="domain" doc:id="e5f0b8b4-aae4-4b40-8169-84a9b5701ae5" message="#[vars.domain]"/>
 		<flow-ref doc:name="sfDomain_subFlow" doc:id="cc4cead9-4bdc-453c-9155-3b8a44ffbc5e" name="sfDomain_subFlow" targetValue="#[ignore]"/>
 		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="8bf70dfc-1932-45e2-a627-a2739bd26c01" millisBetweenRetries="5000">
 			<outlook365:list-message-attachments doc:name="List message attachments" doc:id="c66e122b-5ff8-4472-83bb-499456568067" config-ref="Outlook365_Outlook365_Config" userId="${secure::Outlook.userId}" messageId="#[vars.message.id]" mailFolderId="${secure::Outlook.mailFolderId}" target="allAttachments" />
@@ -153,15 +154,15 @@ output application/json
 							<ee:variables>
 								<ee:set-variable variableName="orderResponseIDP"><![CDATA[%dw 2.0
 output application/json
-var isOrder = isEmpty(
-				    [
-				      { cliente: "ebema", ordenPrefix: "46" }
-				    ] 
-				    filter ((reg) -> 
-				      (lower(vars.orderResponseIDP.nombreSolicitante) contains reg.cliente) 
-				      and 
-				      !(vars.orderResponseIDP.numeroOrden startsWith reg.ordenPrefix)
-				    ))
+//var isOrder = isEmpty(
+//				    [
+//				      { cliente: "ebema", ordenPrefix: "46" }
+//				    ] 
+//				    filter ((reg) -> 
+//				      (lower(vars.orderResponseIDP.nombreSolicitante) contains reg.cliente) 
+//				      and 
+//				      !(vars.orderResponseIDP.numeroOrden startsWith reg.ordenPrefix)
+//				    ))
 var canal = if ((lower(vars.orderResponseIDP.nombreSolicitante) contains "sodimac") and (sizeOf(vars.orderResponseIDP.numeroOrden) == 8)) "10"
 			else if ((lower(vars.orderResponseIDP.nombreSolicitante) contains "sodimac") and (sizeOf(vars.orderResponseIDP.numeroOrden) != 8) and (vars.orderResponseIDP.numeroOrden startsWith "8")) "20"
 			else if (
@@ -182,7 +183,7 @@ var canal = if ((lower(vars.orderResponseIDP.nombreSolicitante) contains "sodima
 ---
 vars.orderResponseIDP 
 	update {
-		case .esOrden -> (isOrder and ($ default false))
+//		case .esOrden -> (isOrder and ($ default false))
 		case .canal -> canal
 	}]]></ee:set-variable>
 							</ee:variables>
@@ -235,7 +236,7 @@ vars.allAttachments filter (item) -> !(vars.sfConvIdAttachments.ContentDocument.
 		</ee:transform>
 		<logger level="DEBUG" doc:name="allAttachments" doc:id="4056311a-fcc4-494d-a89b-88883602bde1" message="#[vars.allAttachments]"/>
 		<foreach doc:name="For Each allAttachments" doc:id="3d056c69-a8db-4016-8acc-fd66febe3fd4" collection="#[vars.allAttachments]" >
-			<logger level="INFO" doc:name="name" doc:id="df422b6b-b26f-4687-98cb-997cdc53fc0a" message='#["Add attachment: " ++ payload.name]' category="email-processing-for-purchase-orders"/>
+			<logger level="INFO" doc:name="name" doc:id="df422b6b-b26f-4687-98cb-997cdc53fc0a" message='#["Add attachment: " ++ payload.name]'/>
 			<ee:transform doc:name="bodyContentVersion" doc:id="c3f52aa3-e689-41fc-8eca-c0602b1b5eeb" >
 				<ee:message />
 				<ee:variables >
@@ -270,7 +271,7 @@ output application/json
 (vars.sfDomain filter (item) -> (item.VM_Dominios__c contains vars.subject))[0] default ""]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="DEBUG" doc:name="sfDomain" doc:id="fd122d14-3c8a-4752-8561-19a406b5ef17" message="#[vars.sfDomain]"/>
+		<logger level="INFO" doc:name="sfDomain" doc:id="fd122d14-3c8a-4752-8561-19a406b5ef17" message="#[vars.sfDomain]"/>
 	</sub-flow>
 	<!-- [STUDIO:"VM_Mulesoft_Clientes_Dominio_Email__mdt"]<flow name="VM_Mulesoft_Clientes_Dominio_Email__mdt" doc:id="23df4a6c-247c-4b76-9a6c-95a6be423606" maxConcurrency="1">
 		<scheduler doc:name="Scheduler" doc:id="3721c815-9233-46d6-b345-a51cf2ceb47e">
